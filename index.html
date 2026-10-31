@@ -70,7 +70,7 @@
 
 <script>
 // The teacher sets this once: the web-app link from the Google Apps Script deployment (see SETUP.md).
-const API = "https://script.google.com/macros/s/AKfycbz2NnbJB4lDvUtiOmbin4nvYLhORZ3FNUGVddJD-jmyJguA1dmlZhXKz6so9mrd7_yR/exec";
+const API = "https://script.google.com/macros/s/AKfycbzfbf-9QyawYMRwaZ9ARn_5aIBgBcLj0gJxcarmqElM0q2OVwXNIP6JVQs6oGIEv6y-/exec";
 const CREDIT = "Md. Nurul Abrar · Lecturer (Mathematics) · App created by Abrar · Mobile: 01616397272";
 
 const T = {
@@ -80,20 +80,20 @@ const T = {
     chooseClass:"Choose your class", newPost:"Post to the class", kind:"Type", subject:"Subject", ttl:"Title", details:"Details", dueDate:"Due date (homework)", to:"Only for these roll numbers (leave empty for everyone)",
     send:"Post", sent:"Posted ✓", del:"Delete", sure:"Delete this post?", needTitle:"Write a title.", board_t:"Board", att:"Attendance", private:"Only for you",
     attendance:"Attendance", present:"Present", absent:"Absent", leave:"Leave", days:"working days", fine:"Fine", thisMonth:"This month", total:"Total", noAtt:"Attendance has not been published yet.",
-    alert:"Absent 3 or more days in a row", absentOn:"Absent on", myLogin:"My login", newId:"New login id", mob:"Mobile", oldPw:"Old password", newPw:"New password (6+ characters)", save:"Save", saved:"Saved ✓", today:"today", tomorrow:"tomorrow", overdue:"overdue", minAgo:" min ago", hAgo:" h ago", taka:"Tk", extraFine:"Extra / Manual fine", extraFineList:"Extra / Manual fines", cause:"Cause / Note", attFine:"Absence fine", grandTotal:"Grand total fine", offDay:"Off", holiday:"Holiday / Weekend" },
+    alert:"Absent 3 or more days in a row", absentOn:"Absent on", myLogin:"My login", newId:"New login id", mob:"Mobile", oldPw:"Old password", newPw:"New password (6+ characters)", save:"Save", saved:"Saved ✓", today:"today", tomorrow:"tomorrow", overdue:"overdue", minAgo:" min ago", hAgo:" h ago", taka:"Tk", todaySummary:"Today's Class Summary", monthSummary:"Whole Month Class Summary", unmarked:"Unmarked", absentToday:"Absent students today", postBtnTeacher:"✏ ＋ Post to class (Notice / Homework)", postBtnCaptain:"✏ ＋ Post Homework or Notice", closeForm:"✕ Close form", selectMonth:"Select month", cancel:"Cancel", punishTab:"⚖ Punishments / Fines", punishTitle:"Add Special Punishment / Fine", punishSub:"Add manual fines with cause notes (for bunking class, disobedience, etc.) that sync to the student portal.", bunkChip:"Bunked class", disobeyChip:"Disobedience", lateChip:"Late arrival", dressChip:"Dress code", needRollAmt:"Please write roll number and fine amount.", addFineBtn:"Add Fine / Punishment", extraFine:"Extra / Manual fine", extraFineList:"Extra / Manual fines", cause:"Cause / Note", attFine:"Absence fine", grandTotal:"Grand total fine", offDay:"Off", holiday:"Holiday / Weekend" },
   bn: { board:"ক্লাস বোর্ড", all:"সব", HOMEWORK:"বাড়ির কাজ", NOTICE:"নোটিশ", FOLLOWUP:"ফলো-আপ", MESSAGE:"বার্তা", due:"জমার তারিখ", by:"পোস্ট করেছেন", teacher:"শিক্ষক", captain:"ক্লাস ক্যাপ্টেন",
     none:"এখনো কিছু নেই।", done:"করা হয়েছে", undone:"করা হয়েছে ✓", offline:"ইন্টারনেট নেই। সর্বশেষ সংরক্ষিত তালিকা দেখানো হচ্ছে।", loading:"লোড হচ্ছে…",
     roll:"রোল", cls:"ক্লাস", student:"ছাত্র/অভিভাবক", teacherL:"শিক্ষক", mobile:"অভিভাবকের মোবাইল নম্বর", loginId:"লগইন আইডি বা মোবাইল", pw:"পাসওয়ার্ড", login:"লগইন", logout:"লগআউট",
     chooseClass:"আপনার ক্লাস বাছুন", newPost:"ক্লাসে পোস্ট করুন", kind:"ধরন", subject:"বিষয়", ttl:"শিরোনাম", details:"বিস্তারিত", dueDate:"জমার তারিখ (বাড়ির কাজ)", to:"শুধু এই রোল নম্বরের জন্য (সবার জন্য হলে খালি রাখুন)",
     send:"পোস্ট", sent:"পোস্ট হয়েছে ✓", del:"মুছুন", sure:"পোস্টটি মুছবেন?", needTitle:"শিরোনাম লিখুন।", board_t:"বোর্ড", att:"হাজিরা", private:"শুধু আপনার জন্য",
     attendance:"হাজিরা", present:"উপস্থিত", absent:"অনুপস্থিত", leave:"ছুটি", days:"কার্যদিবস", fine:"জরিমানা", thisMonth:"এই মাস", total:"মোট", noAtt:"হাজিরা এখনো প্রকাশ করা হয়নি।",
-    alert:"টানা ৩ দিন বা বেশি অনুপস্থিত", absentOn:"অনুপস্থিত", myLogin:"আমার লগইন", newId:"নতুন লগইন আইডি", mob:"মোবাইল", oldPw:"পুরনো পাসওয়ার্ড", newPw:"নতুন পাসওয়ার্ড (৬+ অক্ষর)", save:"সংরক্ষণ", saved:"সংরক্ষিত ✓", today:"আজ", tomorrow:"আগামীকাল", overdue:"সময় পেরিয়েছে", minAgo:" মিনিট আগে", hAgo:" ঘণ্টা আগে", taka:"টাকা", extraFine:"অতিরিক্ত জরিমানা", extraFineList:"অতিরিক্ত / কারণভিত্তিক জরিমানা", cause:"কারণ / নোট", attFine:"অনুপস্থিতির জরিমানা", grandTotal:"সর্বমোট জরিমানা", offDay:"ছুটি", holiday:"ছুটি / সাপ্তাহিক বন্ধ" }
+    alert:"টানা ৩ দিন বা বেশি অনুপস্থিত", absentOn:"অনুপস্থিত", myLogin:"আমার লগইন", newId:"নতুন লগইন আইডি", mob:"মোবাইল", oldPw:"পুরনো পাসওয়ার্ড", newPw:"নতুন পাসওয়ার্ড (৬+ অক্ষর)", save:"সংরক্ষণ", saved:"সংরক্ষিত ✓", today:"আজ", tomorrow:"আগামীকাল", overdue:"সময় পেরিয়েছে", minAgo:" মিনিট আগে", hAgo:" ঘণ্টা আগে", taka:"টাকা", todaySummary:"আজকের ক্লাসের সারসংক্ষেপ", monthSummary:"এই মাসের ক্লাসের সারসংক্ষেপ", unmarked:"অচিহ্নিত", absentToday:"আজকের অনুপস্থিত শিক্ষার্থী", postBtnTeacher:"✏ ＋ ক্লাসে নতুন পোস্ট (নোটিশ / বাড়ির কাজ)", postBtnCaptain:"✏ ＋ বাড়ির কাজ বা নোটিশ দিন", closeForm:"✕ ফর্ম বন্ধ করুন", selectMonth:"মাস নির্বাচন করুন", cancel:"বাতিল", punishTab:"⚖ বিশেষ শাস্তি ও জরিমানা", punishTitle:"বিশেষ শাস্তি / জরিমানা যোগ করুন", punishSub:"ক্লাস পালানো, অবাধ্যতা ইত্যাদির জন্য কারণসহ জরিমানা যোগ করুন যা স্টুডেন্ট পোর্টালে দেখাবে।", bunkChip:"ক্লাস পালানো", disobeyChip:"অবাধ্যতা", lateChip:"দেরিতে আসা", dressChip:"পোশাক ত্রুটি", needRollAmt:"রোল নম্বর এবং টাকার পরিমাণ লিখুন।", addFineBtn:"শাস্তি / জরিমানা যোগ", extraFine:"অতিরিক্ত জরিমানা", extraFineList:"অতিরিক্ত / কারণভিত্তিক জরিমানা", cause:"কারণ / নোট", attFine:"অনুপস্থিতির জরিমানা", grandTotal:"সর্বমোট জরিমানা", offDay:"ছুটি", holiday:"ছুটি / সাপ্তাহিক বন্ধ" }
 };
 let lang = localStorage.getItem("board_lang") || "en";
 const t = k => (T[lang] && T[lang][k]) || T.en[k] || k;
 const nowDate = () => window.__NOW ? new Date(window.__NOW) : new Date();   // (a test can set __NOW)
 
-let auth = null, feed = null, att = null, tab = "board", kindTab = "ALL", subject = "", sections = [], loginRole = "S";
+let auth = null, feed = null, att = null, tab = "board", kindTab = "ALL", subject = "", sections = [], loginRole = "S", showCompose = false, selectedMonthKey = null;
 
 function h(tag, props, ...kids) {
   const e = document.createElement(tag);
@@ -126,6 +126,7 @@ async function loadAll() {
   try {
     feed = await get("feed"); localStorage.setItem("board_cache_" + key(), JSON.stringify(feed));
     if (auth.role === "S") { try { att = await get("attendanceMine"); localStorage.setItem("board_att_" + key(), JSON.stringify(att)); } catch (e) { att = null; } }
+    if (auth.role === "T") { try { await loadExtraFines(); } catch (e) {} }
     setMsg("", "");
   } catch (e) {
     if (/log in|valid|Unknown/.test(String(e.message))) { logout(); setMsg(String(e.message), "error"); return; }
@@ -146,9 +147,9 @@ function render() {
   const v = $("view"); v.textContent = "";
   if (!auth) { v.append(loginView()); return; }
   if (!feed) return;
-  const tabs = [["board", t("board_t")]].concat(auth.role === "S" ? [["att", t("att")]] : [["me", t("myLogin")]]);
+  const tabs = [["board", t("board_t")]].concat(auth.role === "S" ? [["att", t("att")]] : [["punish", t("punishTab")], ["me", t("myLogin")]]);
   v.append(h("div", { class: "tabs" }, tabs.map(([k, l]) => h("button", { class: "chip" + (tab === k ? " on" : ""), onclick: () => { tab = k; render(); } }, l))));
-  if (tab === "board") v.append(boardView()); else if (tab === "att") v.append(attView()); else v.append(profileView());
+  if (tab === "board") v.append(boardView()); else if (tab === "att") v.append(attView()); else if (tab === "punish") v.append(punishView()); else v.append(profileView());
 }
 
 function loginView() {
@@ -174,7 +175,67 @@ function loginView() {
 
 function boardView() {
   const items = feed.items, mode = feed.mode, wrap = h("div");
-  if (mode === "C" || mode === "T") wrap.append(composeView());
+
+  // 1. If Teacher: show Today's Class Summary & Whole Month Summary
+  if (mode === "T" && feed.summary) {
+    const sum = feed.summary;
+    if (sum.today) {
+      const td = sum.today;
+      const tdCard = h("div", { class: "card" });
+      tdCard.append(h("div", { class: "title", style: "display:flex; justify-content:space-between; align-items:center;" },
+        h("span", {}, "📅 " + t("todaySummary")),
+        h("span", { class: "subj", style: "font-weight:normal;" }, fdate(td.date))
+      ));
+      tdCard.append(h("div", { class: "stats" },
+        h("div", {}, h("b", { class: "good" }, td.present), h("span", {}, t("present"))),
+        h("div", {}, h("b", { class: td.absent ? "bad" : "" }, td.absent), h("span", {}, t("absent"))),
+        h("div", {}, h("b", {}, td.leave), h("span", {}, t("leave"))),
+        h("div", {}, h("b", {}, td.total), h("span", {}, t("student"))),
+        td.unmarked > 0 && h("div", {}, h("b", { style: "color:var(--amber);" }, td.unmarked), h("span", {}, t("unmarked")))
+      ));
+      if (td.absentees && td.absentees.length) {
+        tdCard.append(h("div", { class: "meta", style: "margin-top:10px; color:var(--red);" },
+          h("b", {}, t("absentToday") + ": "),
+          td.absentees.map(x => x.r + " " + (x.n || "")).join(", ")
+        ));
+      }
+      wrap.append(tdCard);
+    }
+
+    if (sum.month) {
+      const mo = sum.month;
+      const moCard = h("div", { class: "card" });
+      moCard.append(h("div", { class: "title" }, "📊 " + t("monthSummary") + " (" + new Date(mo.year, mo.monthNum - 1, 1).toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", { month: "long", year: "numeric" }) + ")"));
+      moCard.append(h("div", { class: "row", style: "margin:8px 0;" },
+        h("div", { class: "big " + (mo.pct >= 75 ? "good" : "bad") }, mo.pct + "%"),
+        h("div", { style: "font-size:13px; line-height:1.4;" },
+          t("attendance") + ": " + mo.present + " " + t("present") + " / " + (mo.workingDays * (mo.totalStudents || 1)) + " " + t("days"),
+          h("br"),
+          mo.workingDays + " " + t("days") + " · " + mo.totalStudents + " " + t("student")
+        )
+      ));
+      moCard.append(h("div", { class: "stats" },
+        h("div", {}, h("b", { class: mo.absent ? "bad" : "" }, mo.absent), h("span", {}, t("absent"))),
+        h("div", {}, h("b", {}, mo.leave), h("span", {}, t("leave"))),
+        mo.totalFine > 0 && h("div", {}, h("b", { class: "bad" }, mo.totalFine + " " + t("taka")), h("span", {}, t("total") + " " + t("fine")))
+      ));
+      wrap.append(moCard);
+    }
+  }
+
+  // 2. Collapsible Post Button for Teacher and Captain
+  if (mode === "C" || mode === "T") {
+    const postToggle = h("button", {
+      class: "btn " + (showCompose ? "alt" : ""),
+      style: "width:100%; margin:8px 0; display:flex; align-items:center; justify-content:center; gap:8px; font-weight:600; padding:12px 16px;",
+      onclick: () => { showCompose = !showCompose; render(); }
+    }, showCompose ? t("closeForm") : (mode === "T" ? t("postBtnTeacher") : t("postBtnCaptain")));
+    wrap.append(postToggle);
+    if (showCompose) wrap.append(composeView());
+  }
+
+  // 3. Notice Board header & filters
+  wrap.append(h("div", { class: "title", style: "margin:14px 0 6px;" }, "📌 " + t("board_t")));
   const kinds = ["ALL", "HOMEWORK", "FOLLOWUP", "NOTICE", "MESSAGE"];
   wrap.append(h("div", { class: "chips" }, kinds.map(k => h("button", { class: "chip" + (kindTab === k ? " on" : ""), onclick: () => { kindTab = k; render(); } }, k === "ALL" ? t("all") : t(k)))));
   const subs = Array.from(new Set(items.map(i => i.subject).filter(Boolean)));
@@ -209,18 +270,26 @@ function composeView() {
   const subj = h("input", { id: "c-subject", maxlength: 40 }), title = h("input", { id: "c-title", maxlength: 140 }), body = h("textarea", { id: "c-body", maxlength: 2000 });
   const due = h("input", { id: "c-due", type: "date" }), to = teacher ? h("input", { id: "c-to", placeholder: "201, 205" }) : null;
   const status = h("div", { class: "note", id: "c-status" });
+  const cancelBtn = h("button", { class: "btn alt", type: "button", onclick: () => { showCompose = false; render(); } }, t("cancel"));
   const send = h("button", { class: "btn", id: "c-send", onclick: async () => {
     if (!title.value.trim()) { status.textContent = t("needTitle"); return; }
     send.disabled = true;
     try {
       await post({ action: "notice", kind: kind.value, subject: subj.value, title: title.value, body: body.value, due: kind.value === "HOMEWORK" ? due.value : "", to: to ? to.value.split(/[ ,]+/).map(Number).filter(n => n > 0) : [] });
-      status.textContent = t("sent"); await loadAll();
+      status.textContent = t("sent");
+      showCompose = false;
+      await loadAll();
     } catch (e) { status.textContent = String(e.message || e); }
     send.disabled = false;
   } }, t("send"));
-  return h("div", { class: "card" }, h("div", { class: "title" }, t("newPost")),
+  return h("div", { class: "card", style: "border:1px solid var(--p); animation: fadeIn .2s;" },
+    h("div", { class: "row", style: "justify-content:space-between; margin-bottom:8px;" },
+      h("div", { class: "title", style: "margin:0;" }, t("newPost")),
+      h("button", { class: "pill", style: "background:#eee;color:#333;font-size:12px;", onclick: () => { showCompose = false; render(); } }, "✕")
+    ),
     h("label", {}, t("kind")), kind, h("label", {}, t("subject")), subj, h("label", {}, t("ttl")), title, h("label", {}, t("details")), body,
-    h("label", {}, t("dueDate")), due, to && [h("label", {}, t("to")), to], h("div", { class: "actions" }, send), status);
+    h("label", {}, t("dueDate")), due, to && [h("label", {}, t("to")), to],
+    h("div", { class: "actions", style: "margin-top:12px; gap:8px;" }, send, cancelBtn), status);
 }
 
 // ------------------------------------------------------------------ attendance and fine (worked out here from the published marks) ----
@@ -266,6 +335,18 @@ function analyse(a) {
 function attView() {
   if (!att || !att.months.length) return h("div", { class: "empty" }, t("noAtt"));
   const r = analyse(att), wrap = h("div");
+
+  // Deduplicate months in case duplicate records exist
+  const uniqueMonthsMap = {};
+  r.months.forEach(m => {
+    uniqueMonthsMap[m.month] = m;
+  });
+  const uniqueMonths = Object.keys(uniqueMonthsMap).sort().map(k => uniqueMonthsMap[k]);
+  if (!uniqueMonths.length) return h("div", { class: "empty" }, t("noAtt"));
+
+  if (!selectedMonthKey || !uniqueMonthsMap[selectedMonthKey]) {
+    selectedMonthKey = uniqueMonths[uniqueMonths.length - 1].month;
+  }
   
   // Summary card
   const fineStats = [
@@ -307,48 +388,144 @@ function attView() {
     )
   ));
 
-  // Calendar table for each month
+  // Month dropdown selector & single month calendar table
   const dayNames = lang === "bn" ? ["রবি", "সোম", "মঙ্গল", "বুধ", "বৃহঃ", "শুক্র", "শনি"] : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  r.months.slice().reverse().forEach(m => {
-    const mCard = h("div", { class: "card" });
-    mCard.append(h("div", { class: "title" }, new Date(m.y, m.mo - 1, 1).toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", { month: "long", year: "numeric" })));
-    mCard.append(h("div", { class: "meta", style: "margin-bottom:8px;" }, m.P + " / " + m.worked + " " + t("days") + " (" + m.pct + "%) · " + t("absent") + " " + m.A + " · " + t("leave") + " " + m.L + (r.rate ? " · " + t("fine") + " " + m.fine + " " + t("taka") : "")));
+  const m = uniqueMonthsMap[selectedMonthKey] || uniqueMonths[uniqueMonths.length - 1];
 
-    const grid = h("div", { class: "cal-grid" });
-    dayNames.forEach(dn => grid.append(h("div", { class: "cal-head" }, dn)));
+  const mCard = h("div", { class: "card" });
+  
+  // Dropdown selector header
+  const sel = h("select", {
+    id: "att-month-select",
+    style: "font-weight:600; font-size:15px; padding:8px 12px; margin-bottom:10px; border:1px solid var(--p); border-radius:10px; background:#fff; cursor:pointer;",
+    onchange: (e) => { selectedMonthKey = e.target.value; render(); }
+  }, uniqueMonths.slice().reverse().map(opt =>
+    h("option", { value: opt.month, selected: opt.month === selectedMonthKey },
+      new Date(opt.y, opt.mo - 1, 1).toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", { month: "long", year: "numeric" })
+    )
+  ));
 
-    const firstWd = new Date(m.y, m.mo - 1, 1).getDay();
-    for (let k = 0; k < firstWd; k++) grid.append(h("div", { class: "cal-cell empty" }));
+  mCard.append(h("div", { style: "display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;" },
+    h("div", { class: "title", style: "margin:0;" }, "🗓 " + t("attendance")),
+    sel
+  ));
+  mCard.append(h("div", { class: "meta", style: "margin:8px 0 10px;" },
+    m.P + " / " + m.worked + " " + t("days") + " (" + m.pct + "%) · " + t("absent") + " " + m.A + " · " + t("leave") + " " + m.L + (r.rate ? " · " + t("fine") + " " + m.fine + " " + t("taka") : "")
+  ));
 
-    m.daysList.forEach(item => {
-      let markClass = "empty";
-      let markLabel = "";
-      if (item.isOff) {
-        markClass = "off";
-        markLabel = t("offDay");
-      } else if (item.mark === "P") {
-        markClass = "P";
-        markLabel = "P";
-      } else if (item.mark === "A") {
-        markClass = "A";
-        markLabel = "A";
-      } else if (item.mark === "L") {
-        markClass = "L";
-        markLabel = "L";
-      }
-      grid.append(h("div", { class: "cal-cell " + markClass },
-        h("span", { class: "cal-d" }, item.d),
-        markLabel ? h("span", { class: "cal-m" }, markLabel) : h("span", { class: "cal-dot" }, "")
-      ));
-    });
+  const grid = h("div", { class: "cal-grid" });
+  dayNames.forEach(dn => grid.append(h("div", { class: "cal-head" }, dn)));
 
-    mCard.append(grid);
-    if (m.absentDays && m.absentDays.length) {
-      mCard.append(h("div", { class: "meta", style: "margin-top:10px;" }, t("absentOn") + ": " + m.absentDays.join(", ")));
+  const firstWd = new Date(m.y, m.mo - 1, 1).getDay();
+  for (let k = 0; k < firstWd; k++) grid.append(h("div", { class: "cal-cell empty" }));
+
+  m.daysList.forEach(item => {
+    let markClass = "empty";
+    let markLabel = "";
+    if (item.isOff) {
+      markClass = "off";
+      markLabel = t("offDay");
+    } else if (item.mark === "P") {
+      markClass = "P";
+      markLabel = "P";
+    } else if (item.mark === "A") {
+      markClass = "A";
+      markLabel = "A";
+    } else if (item.mark === "L") {
+      markClass = "L";
+      markLabel = "L";
     }
-    wrap.append(mCard);
+    grid.append(h("div", { class: "cal-cell " + markClass },
+      h("span", { class: "cal-d" }, item.d),
+      markLabel ? h("span", { class: "cal-m" }, markLabel) : h("span", { class: "cal-dot" }, "")
+    ));
   });
 
+  mCard.append(grid);
+  if (m.absentDays && m.absentDays.length) {
+    mCard.append(h("div", { class: "meta", style: "margin-top:10px;" }, t("absentOn") + ": " + m.absentDays.join(", ")));
+  }
+  wrap.append(mCard);
+
+  return wrap;
+}
+
+
+let teacherExtraFines = [];
+async function loadExtraFines() {
+  try {
+    const res = await get("extraFines");
+    if (res.ok) teacherExtraFines = res.extraFines || [];
+  } catch (e) {}
+}
+
+function punishView() {
+  const wrap = h("div");
+  const card = h("div", { class: "card" });
+  card.append(h("div", { class: "title" }, "⚖ " + t("punishTitle")));
+  card.append(h("div", { class: "meta", style: "margin-bottom:12px;" }, t("punishSub")));
+  
+  const rollInp = h("input", { type: "number", placeholder: "e.g. 201", id: "pf-roll" });
+  const amtInp = h("input", { type: "number", value: "50", id: "pf-amt" });
+  const causeInp = h("input", { type: "text", placeholder: "e.g. Bunked class / Disobedience", id: "pf-cause" });
+  const st = h("div", { class: "note", id: "pf-status" });
+  
+  const quickReasons = [
+    t("bunkChip"), t("disobeyChip"), t("lateChip"), t("dressChip")
+  ];
+  const chipsRow = h("div", { class: "chips", style: "margin:6px 0;" },
+    quickReasons.map(r => h("button", { class: "chip", type: "button", onclick: () => { causeInp.value = r; } }, r))
+  );
+
+  const addBtn = h("button", { class: "btn red", onclick: async () => {
+    const r = Number(rollInp.value), amt = Number(amtInp.value), c = causeInp.value.trim();
+    if (!r || !amt) { st.textContent = t("needRollAmt"); return; }
+    addBtn.disabled = true; st.textContent = t("loading");
+    try {
+      const res = await post({ action: "extraFine", roll: r, amount: amt, cause: c || t("bunkChip") });
+      if (res.ok) {
+        teacherExtraFines = res.extraFines || [];
+        st.textContent = t("saved");
+        causeInp.value = "";
+        render();
+      }
+    } catch (e) { st.textContent = String(e.message || e); }
+    addBtn.disabled = false;
+  } }, "＋ " + t("addFineBtn"));
+
+  card.append(
+    h("label", {}, t("roll")), rollInp,
+    h("label", {}, t("fine") + " (Tk)"), amtInp,
+    h("label", {}, t("cause")), causeInp,
+    chipsRow,
+    h("div", { class: "actions" }, addBtn),
+    st
+  );
+  wrap.append(card);
+
+  const listCard = h("div", { class: "card" });
+  listCard.append(h("div", { class: "title" }, t("extraFineList") + " (" + teacherExtraFines.length + ")"));
+  if (!teacherExtraFines.length) {
+    listCard.append(h("div", { class: "empty" }, t("none")));
+  } else {
+    teacherExtraFines.forEach((ef, idx) => {
+      const row = h("div", { class: "extra-fine-row" },
+        h("div", {},
+          h("b", {}, t("roll") + " " + ef.roll + " — " + ef.amount + " " + t("taka")),
+          h("div", { class: "meta" }, (ef.cause || "") + " · " + (ef.date || ""))
+        ),
+        h("button", { class: "btn alt red", style: "padding:4px 10px;font-size:12px;", onclick: async () => {
+          if (!confirm(t("sure"))) return;
+          try {
+            const res = await post({ action: "extraFine", subAction: "delete", index: idx });
+            if (res.ok) { teacherExtraFines = res.extraFines || []; render(); }
+          } catch (e) { alert(String(e.message || e)); }
+        } }, t("del"))
+      );
+      listCard.append(row);
+    });
+  }
+  wrap.append(listCard);
   return wrap;
 }
 
