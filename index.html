@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#6750A4">
+<title>Class board</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<style>
+  :root { --p:#6750A4; --bg:#fbf8ff; --ink:#1d1b20; --mute:#6f6a78; --red:#c62828; --green:#2e7d32; --amber:#ef6c00; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Bengali", sans-serif; background:var(--bg); color:var(--ink); }
+  header { background:var(--p); color:#fff; padding:12px 14px; display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:5; }
+  .logo { width:38px; height:38px; border-radius:10px; background:#fff; color:var(--p); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:700; }
+  header h1 { margin:0; font-size:17px; } header .sub { font-size:12px; opacity:.85; } .grow { flex:1; }
+  button { font:inherit; cursor:pointer; }
+  .pill { background:rgba(255,255,255,.18); color:#fff; border:0; border-radius:999px; padding:6px 12px; font-size:13px; }
+  main { max-width:720px; margin:0 auto; padding:10px 12px 90px; }
+  .tabs, .chips { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
+  .chip { border:1px solid #cfc8dc; background:#fff; color:var(--ink); border-radius:999px; padding:7px 14px; font-size:14px; }
+  .chip.on { background:#e8def8; border-color:var(--p); color:#3b2a73; font-weight:600; }
+  .card { background:#fff; border-radius:14px; padding:14px; margin:10px 0; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+  .card.done { opacity:.55; } .card.alert { background:#ffebee; border:1px solid var(--red); }
+  .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .badge { font-size:12px; padding:3px 9px; border-radius:999px; color:#fff; }
+  .HOMEWORK { background:#1565c0; } .NOTICE { background:#6a1b9a; } .FOLLOWUP { background:#ef6c00; } .MESSAGE { background:#00897b; }
+  .subj { font-size:12px; background:#eee; border-radius:999px; padding:3px 9px; }
+  .title { font-size:17px; font-weight:600; margin:8px 0 4px; }
+  .body { white-space:pre-wrap; word-break:break-word; line-height:1.45; }
+  .meta { color:var(--mute); font-size:12px; margin-top:8px; display:flex; gap:10px; flex-wrap:wrap; }
+  .due { font-weight:600; } .due.soon { color:var(--amber); } .due.late { color:var(--red); }
+  .big { font-size:40px; font-weight:700; line-height:1; } .bad { color:var(--red); } .good { color:var(--green); }
+  .stats { display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; } .stats div { min-width:70px; } .stats b { display:block; font-size:20px; } .stats span { font-size:12px; color:var(--mute); }
+  .empty, .note { text-align:center; color:var(--mute); padding:24px 10px; } .error { color:var(--red); text-align:center; padding:10px; }
+  .actions { display:flex; gap:10px; margin-top:10px; }
+  .btn { background:var(--p); color:#fff; border:0; border-radius:10px; padding:10px 16px; } .btn.alt { background:#fff; color:var(--p); border:1px solid var(--p); } .btn.red { background:#fff; color:var(--red); border:1px solid var(--red); }
+  label { display:block; font-size:13px; color:var(--mute); margin:10px 0 4px; }
+  input, select, textarea { width:100%; font:inherit; padding:10px; border:1px solid #cfc8dc; border-radius:10px; background:#fff; } textarea { min-height:80px; }
+  footer { text-align:center; color:var(--mute); font-size:12px; padding:18px 10px 30px; }
+  .refresh { position:fixed; right:16px; bottom:16px; background:var(--p); color:#fff; border:0; border-radius:999px; padding:12px 18px; box-shadow:0 2px 8px rgba(0,0,0,.25); }
+  a { color:#1a5fb4; }
+  .cal-grid { display:grid; grid-template-columns:repeat(7, 1fr); gap:4px; text-align:center; margin-top:8px; }
+  .cal-head { font-size:11px; font-weight:600; color:var(--mute); padding:4px 0; }
+  .cal-cell { border-radius:8px; padding:4px 2px; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#fafafa; border:1px solid #e8e3f0; }
+  .cal-cell.empty { background:transparent; border-color:transparent; }
+  .cal-cell .cal-d { font-size:11px; font-weight:600; color:var(--ink); margin-bottom:2px; }
+  .cal-cell .cal-m { font-size:11px; font-weight:700; border-radius:4px; padding:1px 5px; }
+  .cal-cell.P { background:#e8f5e9; border-color:#a5d6a7; } .cal-cell.P .cal-m { background:#2e7d32; color:#fff; }
+  .cal-cell.A { background:#ffebee; border-color:#ef9a9a; } .cal-cell.A .cal-m { background:#c62828; color:#fff; }
+  .cal-cell.L { background:#fffde7; border-color:#fff59d; } .cal-cell.L .cal-m { background:#fbc02d; color:#212121; }
+  .cal-cell.off { background:#f5f5f5; border-color:#e0e0e0; opacity:.85; } .cal-cell.off .cal-m { font-size:10px; color:#757575; font-weight:normal; }
+  .cal-cell .cal-dot { width:4px; height:4px; border-radius:50%; background:#d0c8dc; }
+  .cal-tag { display:inline-block; border-radius:4px; padding:1px 6px; font-weight:700; font-size:11px; }
+  .cal-tag.P { background:#2e7d32; color:#fff; } .cal-tag.A { background:#c62828; color:#fff; } .cal-tag.L { background:#fbc02d; color:#212121; } .cal-tag.off { background:#9e9e9e; color:#fff; }
+  .extra-fine-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #ffd8d8; }
+  .extra-fine-row:last-child { border-bottom:0; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">✔</div>
+  <div class="grow"><h1 id="title"></h1><div class="sub" id="sub"></div></div>
+  <button class="pill" id="lang"></button>
+  <button class="pill" id="out" hidden></button>
+</header>
+<main><div id="msg"></div><div id="view"></div></main>
+<button class="refresh" id="refresh" hidden>⟳</button>
+<footer id="credit"></footer>
+
+<script>
+// The teacher sets this once: the web-app link from the Google Apps Script deployment (see SETUP.md).
+const API = "https://script.google.com/macros/s/AKfycbz2NnbJB4lDvUtiOmbin4nvYLhORZ3FNUGVddJD-jmyJguA1dmlZhXKz6so9mrd7_yR/exec";
+const CREDIT = "Md. Nurul Abrar · Lecturer (Mathematics) · App created by Abrar · Mobile: 01616397272";
+
+const T = {
+  en: { board:"Class board", all:"All", HOMEWORK:"Homework", NOTICE:"Notice", FOLLOWUP:"Follow-up", MESSAGE:"Message", due:"Due", by:"Posted by", teacher:"Teacher", captain:"Class captain",
+    none:"Nothing here yet.", done:"Mark as done", undone:"Done ✓", offline:"No internet. Showing the last saved list.", loading:"Loading…",
+    roll:"Roll", cls:"Class", student:"Student", teacherL:"Teacher", mobile:"Guardian mobile number", loginId:"Login id or mobile", pw:"Password", login:"Log in", logout:"Log out",
+    chooseClass:"Choose your class", newPost:"Post to the class", kind:"Type", subject:"Subject", ttl:"Title", details:"Details", dueDate:"Due date (homework)", to:"Only for these roll numbers (leave empty for everyone)",
+    send:"Post", sent:"Posted ✓", del:"Delete", sure:"Delete this post?", needTitle:"Write a title.", board_t:"Board", att:"Attendance", private:"Only for you",
+    attendance:"Attendance", present:"Present", absent:"Absent", leave:"Leave", days:"working days", fine:"Fine", thisMonth:"This month", total:"Total", noAtt:"Attendance has not been published yet.",
+    alert:"Absent 3 or more days in a row", absentOn:"Absent on", myLogin:"My login", newId:"New login id", mob:"Mobile", oldPw:"Old password", newPw:"New password (6+ characters)", save:"Save", saved:"Saved ✓", today:"today", tomorrow:"tomorrow", overdue:"overdue", minAgo:" min ago", hAgo:" h ago", taka:"Tk", extraFine:"Extra / Manual fine", extraFineList:"Extra / Manual fines", cause:"Cause / Note", attFine:"Absence fine", grandTotal:"Grand total fine", offDay:"Off", holiday:"Holiday / Weekend" },
+  bn: { board:"ক্লাস বোর্ড", all:"সব", HOMEWORK:"বাড়ির কাজ", NOTICE:"নোটিশ", FOLLOWUP:"ফলো-আপ", MESSAGE:"বার্তা", due:"জমার তারিখ", by:"পোস্ট করেছেন", teacher:"শিক্ষক", captain:"ক্লাস ক্যাপ্টেন",
+    none:"এখনো কিছু নেই।", done:"করা হয়েছে", undone:"করা হয়েছে ✓", offline:"ইন্টারনেট নেই। সর্বশেষ সংরক্ষিত তালিকা দেখানো হচ্ছে।", loading:"লোড হচ্ছে…",
+    roll:"রোল", cls:"ক্লাস", student:"ছাত্র/অভিভাবক", teacherL:"শিক্ষক", mobile:"অভিভাবকের মোবাইল নম্বর", loginId:"লগইন আইডি বা মোবাইল", pw:"পাসওয়ার্ড", login:"লগইন", logout:"লগআউট",
+    chooseClass:"আপনার ক্লাস বাছুন", newPost:"ক্লাসে পোস্ট করুন", kind:"ধরন", subject:"বিষয়", ttl:"শিরোনাম", details:"বিস্তারিত", dueDate:"জমার তারিখ (বাড়ির কাজ)", to:"শুধু এই রোল নম্বরের জন্য (সবার জন্য হলে খালি রাখুন)",
+    send:"পোস্ট", sent:"পোস্ট হয়েছে ✓", del:"মুছুন", sure:"পোস্টটি মুছবেন?", needTitle:"শিরোনাম লিখুন।", board_t:"বোর্ড", att:"হাজিরা", private:"শুধু আপনার জন্য",
+    attendance:"হাজিরা", present:"উপস্থিত", absent:"অনুপস্থিত", leave:"ছুটি", days:"কার্যদিবস", fine:"জরিমানা", thisMonth:"এই মাস", total:"মোট", noAtt:"হাজিরা এখনো প্রকাশ করা হয়নি।",
+    alert:"টানা ৩ দিন বা বেশি অনুপস্থিত", absentOn:"অনুপস্থিত", myLogin:"আমার লগইন", newId:"নতুন লগইন আইডি", mob:"মোবাইল", oldPw:"পুরনো পাসওয়ার্ড", newPw:"নতুন পাসওয়ার্ড (৬+ অক্ষর)", save:"সংরক্ষণ", saved:"সংরক্ষিত ✓", today:"আজ", tomorrow:"আগামীকাল", overdue:"সময় পেরিয়েছে", minAgo:" মিনিট আগে", hAgo:" ঘণ্টা আগে", taka:"টাকা", extraFine:"অতিরিক্ত জরিমানা", extraFineList:"অতিরিক্ত / কারণভিত্তিক জরিমানা", cause:"কারণ / নোট", attFine:"অনুপস্থিতির জরিমানা", grandTotal:"সর্বমোট জরিমানা", offDay:"ছুটি", holiday:"ছুটি / সাপ্তাহিক বন্ধ" }
+};
+let lang = localStorage.getItem("board_lang") || "en";
+const t = k => (T[lang] && T[lang][k]) || T.en[k] || k;
+const nowDate = () => window.__NOW ? new Date(window.__NOW) : new Date();   // (a test can set __NOW)
+
+let auth = null, feed = null, att = null, tab = "board", kindTab = "ALL", subject = "", sections = [], loginRole = "S";
+
+function h(tag, props, ...kids) {
+  const e = document.createElement(tag);
+  for (const k in (props || {})) { const v = props[k]; if (k === "class") e.className = v; else if (k.startsWith("on")) e[k] = v; else if (k === "value") e.value = v; else if (v !== false && v != null) e.setAttribute(k, v); }
+  kids.flat().forEach(c => { if (c != null && c !== false) e.append(c); });
+  return e;
+}
+const $ = id => document.getElementById(id);
+function linkify(parent, text) {
+  const re = /(https?:\/\/[^\s<>"']+)/g; let last = 0, m;
+  while ((m = re.exec(text))) { if (m.index > last) parent.append(text.slice(last, m.index)); parent.append(h("a", { href: m[1], target: "_blank", rel: "noopener noreferrer" }, m[1])); last = m.index + m[1].length; }
+  if (last < text.length) parent.append(text.slice(last));
+}
+const key = () => auth ? (auth.role === "T" ? "t_" + auth.u : "s_" + auth.s + "_" + auth.r) : "";
+const save = () => localStorage.setItem("board_auth", JSON.stringify(auth));
+const dayNum = s => { const d = new Date(s + "T00:00:00"), n = nowDate(); n.setHours(0, 0, 0, 0); return Math.round((d - n) / 86400000); };
+const fdate = s => new Date(s + "T00:00:00").toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", { day: "numeric", month: "short" });
+function ago(s) { const d = new Date(s), m = Math.max(0, Math.round((nowDate() - d) / 60000)); return m < 60 ? m + t("minAgo") : m < 1440 ? Math.round(m / 60) + t("hAgo") : d.toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", { day: "numeric", month: "short" }); }
+
+// ------------------------------------------------------------------ network ----
+async function api(url, opt) { const r = await fetch(url, opt); const j = await r.json(); if (!j.ok) throw new Error(j.error || "Error"); return j; }
+const rawPost = obj => api(API, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(obj) });
+const authParams = () => auth.role === "T" ? { u: auth.u, tk: auth.tk } : { s: auth.s, r: auth.r, tk: auth.tk };
+const post = obj => rawPost(Object.assign(authParams(), obj));
+const get = action => api(API + "?" + new URLSearchParams(Object.assign({ action }, authParams())).toString());
+
+async function loadAll() {
+  if (!auth) { render(); return; }
+  setMsg(t("loading"), "note");
+  try {
+    feed = await get("feed"); localStorage.setItem("board_cache_" + key(), JSON.stringify(feed));
+    if (auth.role === "S") { try { att = await get("attendanceMine"); localStorage.setItem("board_att_" + key(), JSON.stringify(att)); } catch (e) { att = null; } }
+    setMsg("", "");
+  } catch (e) {
+    if (/log in|valid|Unknown/.test(String(e.message))) { logout(); setMsg(String(e.message), "error"); return; }
+    try { feed = JSON.parse(localStorage.getItem("board_cache_" + key()) || "null"); att = JSON.parse(localStorage.getItem("board_att_" + key()) || "null"); } catch (x) {}
+    setMsg(feed ? t("offline") : String(e.message || "No internet"), feed ? "note" : "error");
+  }
+  render();
+}
+function setMsg(text, cls) { const m = $("msg"); m.textContent = text; m.className = cls || ""; }
+function logout() { localStorage.removeItem("board_auth"); auth = null; feed = null; att = null; render(); }
+
+// ------------------------------------------------------------------ screens ----
+function render() {
+  document.documentElement.lang = lang;
+  $("title").textContent = t("board"); $("lang").textContent = lang === "en" ? "বাংলা" : "English";
+  $("credit").textContent = CREDIT; $("out").textContent = t("logout"); $("out").hidden = !auth; $("refresh").hidden = !auth;
+  $("sub").textContent = auth && feed ? [t("cls") + " " + feed.section, auth.role === "T" ? t("teacher") : feed.name || (t("roll") + " " + feed.roll)].join(" · ") : "";
+  const v = $("view"); v.textContent = "";
+  if (!auth) { v.append(loginView()); return; }
+  if (!feed) return;
+  const tabs = [["board", t("board_t")]].concat(auth.role === "S" ? [["att", t("att")]] : [["me", t("myLogin")]]);
+  v.append(h("div", { class: "tabs" }, tabs.map(([k, l]) => h("button", { class: "chip" + (tab === k ? " on" : ""), onclick: () => { tab = k; render(); } }, l))));
+  if (tab === "board") v.append(boardView()); else if (tab === "att") v.append(attView()); else v.append(profileView());
+}
+
+function loginView() {
+  const err = h("div", { class: "error", id: "login-err" });
+  const sel = h("select", { id: "s-class" }, h("option", { value: "" }, t("chooseClass")), sections.map(s => h("option", { value: s }, s)));
+  const roll = h("input", { id: "s-roll", type: "number", inputmode: "numeric" }), phone = h("input", { id: "s-phone", type: "tel", inputmode: "tel" });
+  const uid = h("input", { id: "t-user", autocomplete: "username" }), pw = h("input", { id: "t-pw", type: "password", autocomplete: "current-password" });
+  const go = h("button", { class: "btn", id: "login-btn", onclick: async () => {
+    err.textContent = ""; go.disabled = true;
+    try {
+      if (loginRole === "S") { const j = await rawPost({ action: "slogin", s: sel.value, r: Number(roll.value), phone: phone.value }); auth = { role: "S", s: sel.value, r: Number(roll.value), tk: j.tk }; }
+      else { const j = await rawPost({ action: "login", u: uid.value, pw: pw.value }); auth = { role: "T", u: j.teacher.loginId, tk: j.tk }; }
+      save(); tab = "board"; await loadAll();
+    } catch (e) { err.textContent = String(e.message || e); }
+    go.disabled = false;
+  } }, t("login"));
+  const who = h("div", { class: "tabs" }, [["S", t("student")], ["T", t("teacherL")]].map(([k, l]) => h("button", { class: "chip" + (loginRole === k ? " on" : ""), onclick: () => { loginRole = k; render(); } }, l)));
+  const form = loginRole === "S"
+    ? [h("label", {}, t("cls")), sel, h("label", {}, t("roll")), roll, h("label", {}, t("mobile")), phone]
+    : [h("label", {}, t("loginId")), uid, h("label", {}, t("pw")), pw];
+  return h("div", { class: "card" }, who, form, h("div", { class: "actions" }, go), err);
+}
+
+function boardView() {
+  const items = feed.items, mode = feed.mode, wrap = h("div");
+  if (mode === "C" || mode === "T") wrap.append(composeView());
+  const kinds = ["ALL", "HOMEWORK", "FOLLOWUP", "NOTICE", "MESSAGE"];
+  wrap.append(h("div", { class: "chips" }, kinds.map(k => h("button", { class: "chip" + (kindTab === k ? " on" : ""), onclick: () => { kindTab = k; render(); } }, k === "ALL" ? t("all") : t(k)))));
+  const subs = Array.from(new Set(items.map(i => i.subject).filter(Boolean)));
+  if (subs.length) wrap.append(h("div", { class: "chips" }, [""].concat(subs).map(s => h("button", { class: "chip" + (subject === s ? " on" : ""), onclick: () => { subject = s; render(); } }, s || t("all")))));
+  const shown = items.filter(i => (kindTab === "ALL" || i.kind === kindTab) && (!subject || i.subject === subject));
+  if (!shown.length) wrap.append(h("div", { class: "empty" }, t("none")));
+  shown.forEach(i => wrap.append(noticeCard(i)));
+  return wrap;
+}
+
+function noticeCard(i) {
+  const dk = "board_done_" + key() + "_" + i.id, done = localStorage.getItem(dk) === "1";
+  const c = h("div", { class: "card" + (done && i.kind === "HOMEWORK" ? " done" : "") });
+  c.append(h("div", { class: "row" }, h("span", { class: "badge " + i.kind }, t(i.kind)), i.subject && h("span", { class: "subj" }, i.subject), i.to && i.to.length && feed.mode === "S" && h("span", { class: "subj" }, "🔒 " + t("private"))));
+  c.append(h("div", { class: "title" }, i.title));
+  if (i.body) { const b = h("div", { class: "body" }); linkify(b, i.body); c.append(b); }
+  const meta = h("div", { class: "meta" });
+  if (i.due) { const n = dayNum(i.due); meta.append(h("span", { class: "due" + (n < 0 ? " late" : n <= 1 ? " soon" : "") }, t("due") + ": " + fdate(i.due) + (n < 0 ? " (" + t("overdue") + ")" : n === 0 ? " (" + t("today") + ")" : n === 1 ? " (" + t("tomorrow") + ")" : ""))); }
+  meta.append(h("span", {}, t("by") + " " + (i.role === "T" ? t("teacher") : i.author + " (" + t("captain") + ")")), h("span", {}, ago(i.created)));
+  if (i.to && i.to.length && feed.mode === "T") meta.append(h("span", {}, "→ " + i.to.join(", ")));
+  c.append(meta);
+  const acts = h("div", { class: "actions" });
+  if (i.kind === "HOMEWORK" && feed.mode === "S") acts.append(h("button", { class: "btn " + (done ? "" : "alt"), onclick: () => { done ? localStorage.removeItem(dk) : localStorage.setItem(dk, "1"); render(); } }, done ? t("undone") : t("done")));
+  if (feed.mode === "T" || (feed.mode === "C" && i.authorRoll === feed.roll)) acts.append(h("button", { class: "btn red", onclick: async () => { if (!confirm(t("sure"))) return; await post({ action: "delete", id: i.id }); loadAll(); } }, t("del")));
+  if (acts.children.length) c.append(acts);
+  return c;
+}
+
+function composeView() {
+  const teacher = feed.mode === "T";
+  const kind = h("select", { id: "c-kind" }, (teacher ? ["HOMEWORK", "NOTICE", "FOLLOWUP", "MESSAGE"] : ["HOMEWORK", "NOTICE", "FOLLOWUP"]).map(k => h("option", { value: k }, t(k))));
+  const subj = h("input", { id: "c-subject", maxlength: 40 }), title = h("input", { id: "c-title", maxlength: 140 }), body = h("textarea", { id: "c-body", maxlength: 2000 });
+  const due = h("input", { id: "c-due", type: "date" }), to = teacher ? h("input", { id: "c-to", placeholder: "201, 205" }) : null;
+  const status = h("div", { class: "note", id: "c-status" });
+  const send = h("button", { class: "btn", id: "c-send", onclick: async () => {
+    if (!title.value.trim()) { status.textContent = t("needTitle"); return; }
+    send.disabled = true;
+    try {
+      await post({ action: "notice", kind: kind.value, subject: subj.value, title: title.value, body: body.value, due: kind.value === "HOMEWORK" ? due.value : "", to: to ? to.value.split(/[ ,]+/).map(Number).filter(n => n > 0) : [] });
+      status.textContent = t("sent"); await loadAll();
+    } catch (e) { status.textContent = String(e.message || e); }
+    send.disabled = false;
+  } }, t("send"));
+  return h("div", { class: "card" }, h("div", { class: "title" }, t("newPost")),
+    h("label", {}, t("kind")), kind, h("label", {}, t("subject")), subj, h("label", {}, t("ttl")), title, h("label", {}, t("details")), body,
+    h("label", {}, t("dueDate")), due, to && [h("label", {}, t("to")), to], h("div", { class: "actions" }, send), status);
+}
+
+// ------------------------------------------------------------------ attendance and fine (worked out here from the published marks) ----
+const WEEKENDS = { FRI_SAT: [5, 6], SAT_SUN: [6, 0], SUN: [0], FRI: [5] };
+function analyse(a) {
+  const info = a.info || {}, hol = new Set(info.holidays || []), wk = WEEKENDS[info.weekend] || [5, 6], rate = Number(info.fine) || 50, today = nowDate();
+  const pad = n => String(n).padStart(2, "0"), all = [];
+  const months = a.months.map(m => {
+    const [y, mo] = m.month.split("-").map(Number), days = new Date(y, mo, 0).getDate();
+    let P = 0, A = 0, L = 0, last = 0; const absentDays = [];
+    const daysList = [];
+    for (let d = 1; d <= days; d++) {
+      const c = (m.marks[d - 1] || " ");
+      const dtStr = y + "-" + pad(mo) + "-" + pad(d);
+      const wd = new Date(y, mo - 1, d).getDay();
+      const isOff = wk.includes(wd) || hol.has(dtStr);
+      // Holidays and weekends: do not count P or A even if pressed wrongly!
+      if (!isOff) {
+        if (c === "P") P++;
+        else if (c === "A") { A++; absentDays.push(d); }
+        else if (c === "L") L++;
+        if (c !== " ") { last = d; all.push(c); }
+      }
+      daysList.push({ d, wd, mark: c, isOff, isHoliday: hol.has(dtStr), isWeekend: wk.includes(wd) });
+    }
+    const ended = new Date(y, mo, 0, 23, 59) < today, upTo = ended ? days : last;
+    let worked = 0;
+    for (let d = 1; d <= upTo; d++) {
+      const wd = new Date(y, mo - 1, d).getDay();
+      const dtStr = y + "-" + pad(mo) + "-" + pad(d);
+      if (!wk.includes(wd) && !hol.has(dtStr)) worked++;
+    }
+    return { month: m.month, y, mo, P, A, L, worked, pct: worked ? Math.min(100, Math.floor(P * 100 / worked)) : 0, absentDays, fine: A * rate, daysList };
+  });
+  const P = months.reduce((s, m) => s + m.P, 0), A = months.reduce((s, m) => s + m.A, 0), L = months.reduce((s, m) => s + m.L, 0), worked = months.reduce((s, m) => s + m.worked, 0);
+  let streak = 0; for (let i = all.length - 1; i >= 0; i--) { if (all[i] === "A") streak++; else break; }
+  const cur = months.length ? months[months.length - 1] : null;
+  const extraFines = a.extraFines || [];
+  const extraTotal = extraFines.reduce((s, x) => s + (Number(x.amount) || 0), 0);
+  return { months, P, A, L, worked, pct: worked ? Math.min(100, Math.floor(P * 100 / worked)) : 0, fine: A * rate, thisFine: cur ? cur.fine : 0, rate, streak, extraFines, extraTotal, grandFine: A * rate + extraTotal };
+}
+
+function attView() {
+  if (!att || !att.months.length) return h("div", { class: "empty" }, t("noAtt"));
+  const r = analyse(att), wrap = h("div");
+  
+  // Summary card
+  const fineStats = [
+    h("div", {}, h("b", { class: r.fine ? "bad" : "", id: "fine-total" }, r.fine + " " + t("taka")), h("span", {}, t("attFine") + (r.rate ? " (" + r.rate + " Tk/d)" : "")))
+  ];
+  if (r.extraTotal > 0) {
+    fineStats.push(h("div", {}, h("b", { class: "bad", id: "fine-extra" }, r.extraTotal + " " + t("taka")), h("span", {}, t("extraFine"))));
+    fineStats.push(h("div", {}, h("b", { class: "bad", id: "fine-grand" }, r.grandFine + " " + t("taka")), h("span", {}, t("grandTotal"))));
+  } else if (r.thisFine != null) {
+    fineStats.unshift(h("div", {}, h("b", { class: r.thisFine ? "bad" : "", id: "fine-month" }, r.thisFine + " " + t("taka")), h("span", {}, t("fine") + " · " + t("thisMonth"))));
+  }
+
+  wrap.append(h("div", { class: "card" + (r.streak >= 3 ? " alert" : "") },
+    r.streak >= 3 && h("div", { class: "bad title", id: "att-alert" }, "🔴 ⚠ " + t("alert") + " (" + r.streak + ")"),
+    h("div", { class: "row" }, h("div", { class: "big " + (r.pct >= 75 ? "good" : "bad"), id: "att-pct" }, r.pct + "%"), h("div", {}, t("attendance"), h("br"), r.P + " / " + r.worked + " " + t("days"))),
+    h("div", { class: "stats" }, h("div", {}, h("b", {}, r.P), h("span", {}, t("present"))), h("div", {}, h("b", { class: r.A ? "bad" : "" }, r.A), h("span", {}, t("absent"))), h("div", {}, h("b", {}, r.L), h("span", {}, t("leave")))),
+    r.rate > 0 && h("div", { class: "stats" }, fineStats)
+  ));
+
+  // If student has manual/extra fines with cause notes (e.g. disobedience, bunked class)
+  if (r.extraFines && r.extraFines.length) {
+    const efCard = h("div", { class: "card alert" }, h("div", { class: "title" }, "⚠ " + t("extraFineList")));
+    r.extraFines.forEach(ef => {
+      efCard.append(h("div", { class: "extra-fine-row" },
+        h("div", {}, h("b", {}, ef.cause || t("extraFine")), h("div", { class: "meta" }, ef.date ? fdate(ef.date) : "")),
+        h("div", { class: "bad", style: "font-weight:700;font-size:15px;" }, ef.amount + " " + t("taka"))
+      ));
+    });
+    wrap.append(efCard);
+  }
+
+  // Calendar legend
+  wrap.append(h("div", { class: "card", style: "padding:10px 14px;" },
+    h("div", { class: "row", style: "font-size:12px;gap:12px;" },
+      h("span", { class: "row", style: "gap:4px;" }, h("span", { class: "cal-tag P" }, "P"), " " + t("present")),
+      h("span", { class: "row", style: "gap:4px;" }, h("span", { class: "cal-tag A" }, "A"), " " + t("absent")),
+      h("span", { class: "row", style: "gap:4px;" }, h("span", { class: "cal-tag L" }, "L"), " " + t("leave")),
+      h("span", { class: "row", style: "gap:4px;" }, h("span", { class: "cal-tag off" }, "Off"), " " + t("holiday"))
+    )
+  ));
+
+  // Calendar table for each month
+  const dayNames = lang === "bn" ? ["রবি", "সোম", "মঙ্গল", "বুধ", "বৃহঃ", "শুক্র", "শনি"] : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  r.months.slice().reverse().forEach(m => {
+    const mCard = h("div", { class: "card" });
+    mCard.append(h("div", { class: "title" }, new Date(m.y, m.mo - 1, 1).toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", { month: "long", year: "numeric" })));
+    mCard.append(h("div", { class: "meta", style: "margin-bottom:8px;" }, m.P + " / " + m.worked + " " + t("days") + " (" + m.pct + "%) · " + t("absent") + " " + m.A + " · " + t("leave") + " " + m.L + (r.rate ? " · " + t("fine") + " " + m.fine + " " + t("taka") : "")));
+
+    const grid = h("div", { class: "cal-grid" });
+    dayNames.forEach(dn => grid.append(h("div", { class: "cal-head" }, dn)));
+
+    const firstWd = new Date(m.y, m.mo - 1, 1).getDay();
+    for (let k = 0; k < firstWd; k++) grid.append(h("div", { class: "cal-cell empty" }));
+
+    m.daysList.forEach(item => {
+      let markClass = "empty";
+      let markLabel = "";
+      if (item.isOff) {
+        markClass = "off";
+        markLabel = t("offDay");
+      } else if (item.mark === "P") {
+        markClass = "P";
+        markLabel = "P";
+      } else if (item.mark === "A") {
+        markClass = "A";
+        markLabel = "A";
+      } else if (item.mark === "L") {
+        markClass = "L";
+        markLabel = "L";
+      }
+      grid.append(h("div", { class: "cal-cell " + markClass },
+        h("span", { class: "cal-d" }, item.d),
+        markLabel ? h("span", { class: "cal-m" }, markLabel) : h("span", { class: "cal-dot" }, "")
+      ));
+    });
+
+    mCard.append(grid);
+    if (m.absentDays && m.absentDays.length) {
+      mCard.append(h("div", { class: "meta", style: "margin-top:10px;" }, t("absentOn") + ": " + m.absentDays.join(", ")));
+    }
+    wrap.append(mCard);
+  });
+
+  return wrap;
+}
+
+function profileView() {
+  const f = k => h("input", { id: "p-" + k, type: k.includes("Pw") ? "password" : "text" }), id = f("id"), mob = f("mob"), oldp = f("oldPw"), newp = f("newPw"), st = h("div", { class: "note", id: "p-status" });
+  return h("div", { class: "card" }, h("div", { class: "title" }, t("myLogin")), h("label", {}, t("newId")), id, h("label", {}, t("mob")), mob, h("label", {}, t("oldPw")), oldp, h("label", {}, t("newPw")), newp,
+    h("div", { class: "actions" }, h("button", { class: "btn", id: "p-save", onclick: async () => {
+      try { const j = await post({ action: "profile", newLoginId: id.value, mobile: mob.value || undefined, oldPassword: oldp.value, newPassword: newp.value });
+        auth.u = j.teacher.loginId; auth.tk = j.tk; save(); st.textContent = t("saved"); } catch (e) { st.textContent = String(e.message || e); } } }, t("save"))), st);
+}
+
+// ------------------------------------------------------------------ start ----
+$("lang").onclick = () => { lang = lang === "en" ? "bn" : "en"; localStorage.setItem("board_lang", lang); render(); };
+$("out").onclick = logout; $("refresh").onclick = loadAll;
+async function start() {
+  try { auth = JSON.parse(localStorage.getItem("board_auth") || "null"); } catch (e) { auth = null; }
+  if (auth) { try { feed = JSON.parse(localStorage.getItem("board_cache_" + key()) || "null"); att = JSON.parse(localStorage.getItem("board_att_" + key()) || "null"); } catch (e) {} }
+  render();
+  if (!auth) { try { sections = (await api(API + "?action=sections")).sections; } catch (e) { setMsg(String(e.message || "No internet"), "error"); } render(); }
+  else loadAll();
+}
+start();
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>
