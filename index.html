@@ -70,7 +70,7 @@
 
 <script>
 // The teacher sets this once: the web-app link from the Google Apps Script deployment (see SETUP.md).
-const API = "https://script.google.com/macros/s/AKfycbzfbf-9QyawYMRwaZ9ARn_5aIBgBcLj0gJxcarmqElM0q2OVwXNIP6JVQs6oGIEv6y-/exec";
+const API = "https://script.google.com/macros/s/AKfycbzO_C-tkzx_Chw6W41Y7-HnZDNVPWTDF6S6JXoVwcCom5gCqsZx37Efn6wn4tGHYPhD/exec";
 const CREDIT = "Md. Nurul Abrar · Lecturer (Mathematics) · App created by Abrar · Mobile: 01616397272";
 
 const T = {
@@ -80,14 +80,14 @@ const T = {
     chooseClass:"Choose your class", newPost:"Post to the class", kind:"Type", subject:"Subject", ttl:"Title", details:"Details", dueDate:"Due date (homework)", to:"Only for these roll numbers (leave empty for everyone)",
     send:"Post", sent:"Posted ✓", del:"Delete", sure:"Delete this post?", needTitle:"Write a title.", board_t:"Board", att:"Attendance", private:"Only for you",
     attendance:"Attendance", present:"Present", absent:"Absent", leave:"Leave", days:"working days", fine:"Fine", thisMonth:"This month", total:"Total", noAtt:"Attendance has not been published yet.",
-    alert:"Absent 3 or more days in a row", absentOn:"Absent on", myLogin:"My login", newId:"New login id", mob:"Mobile", oldPw:"Old password", newPw:"New password (6+ characters)", save:"Save", saved:"Saved ✓", today:"today", tomorrow:"tomorrow", overdue:"overdue", minAgo:" min ago", hAgo:" h ago", taka:"Tk", todaySummary:"Today's Class Summary", monthSummary:"Whole Month Class Summary", unmarked:"Unmarked", absentToday:"Absent students today", postBtnTeacher:"✏ ＋ Post to class (Notice / Homework)", postBtnCaptain:"✏ ＋ Post Homework or Notice", closeForm:"✕ Close form", selectMonth:"Select month", cancel:"Cancel", punishTab:"⚖ Punishments / Fines", punishTitle:"Add Special Punishment / Fine", punishSub:"Add manual fines with cause notes (for bunking class, disobedience, etc.) that sync to the student portal.", bunkChip:"Bunked class", disobeyChip:"Disobedience", lateChip:"Late arrival", dressChip:"Dress code", needRollAmt:"Please write roll number and fine amount.", addFineBtn:"Add Fine / Punishment", extraFine:"Extra / Manual fine", extraFineList:"Extra / Manual fines", cause:"Cause / Note", attFine:"Absence fine", grandTotal:"Grand total fine", offDay:"Off", holiday:"Holiday / Weekend" },
+    alert:"Absent 3 or more days in a row", absentOn:"Absent on", myLogin:"My login", newId:"New login id", mob:"Mobile", oldPw:"Old password", newPw:"New password (6+ characters)", save:"Save", saved:"Saved ✓", today:"today", tomorrow:"tomorrow", overdue:"overdue", minAgo:" min ago", hAgo:" h ago", taka:"Tk", markAttTab:"Mark Attendance", markAllP:"Mark All Present", saveAtt:"Save & Publish Attendance", attSavedOk:"Attendance saved & published successfully!", todaySummary:"Today's Class Summary", monthSummary:"Whole Month Class Summary", unmarked:"Unmarked", absentToday:"Absent students today", postBtnTeacher:"✏ ＋ Post to class (Notice / Homework)", postBtnCaptain:"✏ ＋ Post Homework or Notice", closeForm:"✕ Close form", selectMonth:"Select month", cancel:"Cancel", punishTab:"⚖ Punishments / Fines", punishTitle:"Add Special Punishment / Fine", punishSub:"Add manual fines with cause notes (for bunking class, disobedience, etc.) that sync to the student portal.", bunkChip:"Bunked class", disobeyChip:"Disobedience", lateChip:"Late arrival", dressChip:"Dress code", needRollAmt:"Please write roll number and fine amount.", addFineBtn:"Add Fine / Punishment", extraFine:"Extra / Manual fine", extraFineList:"Extra / Manual fines", cause:"Cause / Note", attFine:"Absence fine", grandTotal:"Grand total fine", offDay:"Off", holiday:"Holiday / Weekend" },
   bn: { board:"ক্লাস বোর্ড", all:"সব", HOMEWORK:"বাড়ির কাজ", NOTICE:"নোটিশ", FOLLOWUP:"ফলো-আপ", MESSAGE:"বার্তা", due:"জমার তারিখ", by:"পোস্ট করেছেন", teacher:"শিক্ষক", captain:"ক্লাস ক্যাপ্টেন",
     none:"এখনো কিছু নেই।", done:"করা হয়েছে", undone:"করা হয়েছে ✓", offline:"ইন্টারনেট নেই। সর্বশেষ সংরক্ষিত তালিকা দেখানো হচ্ছে।", loading:"লোড হচ্ছে…",
     roll:"রোল", cls:"ক্লাস", student:"ছাত্র/অভিভাবক", teacherL:"শিক্ষক", mobile:"অভিভাবকের মোবাইল নম্বর", loginId:"লগইন আইডি বা মোবাইল", pw:"পাসওয়ার্ড", login:"লগইন", logout:"লগআউট",
     chooseClass:"আপনার ক্লাস বাছুন", newPost:"ক্লাসে পোস্ট করুন", kind:"ধরন", subject:"বিষয়", ttl:"শিরোনাম", details:"বিস্তারিত", dueDate:"জমার তারিখ (বাড়ির কাজ)", to:"শুধু এই রোল নম্বরের জন্য (সবার জন্য হলে খালি রাখুন)",
     send:"পোস্ট", sent:"পোস্ট হয়েছে ✓", del:"মুছুন", sure:"পোস্টটি মুছবেন?", needTitle:"শিরোনাম লিখুন।", board_t:"বোর্ড", att:"হাজিরা", private:"শুধু আপনার জন্য",
     attendance:"হাজিরা", present:"উপস্থিত", absent:"অনুপস্থিত", leave:"ছুটি", days:"কার্যদিবস", fine:"জরিমানা", thisMonth:"এই মাস", total:"মোট", noAtt:"হাজিরা এখনো প্রকাশ করা হয়নি।",
-    alert:"টানা ৩ দিন বা বেশি অনুপস্থিত", absentOn:"অনুপস্থিত", myLogin:"আমার লগইন", newId:"নতুন লগইন আইডি", mob:"মোবাইল", oldPw:"পুরনো পাসওয়ার্ড", newPw:"নতুন পাসওয়ার্ড (৬+ অক্ষর)", save:"সংরক্ষণ", saved:"সংরক্ষিত ✓", today:"আজ", tomorrow:"আগামীকাল", overdue:"সময় পেরিয়েছে", minAgo:" মিনিট আগে", hAgo:" ঘণ্টা আগে", taka:"টাকা", todaySummary:"আজকের ক্লাসের সারসংক্ষেপ", monthSummary:"এই মাসের ক্লাসের সারসংক্ষেপ", unmarked:"অচিহ্নিত", absentToday:"আজকের অনুপস্থিত শিক্ষার্থী", postBtnTeacher:"✏ ＋ ক্লাসে নতুন পোস্ট (নোটিশ / বাড়ির কাজ)", postBtnCaptain:"✏ ＋ বাড়ির কাজ বা নোটিশ দিন", closeForm:"✕ ফর্ম বন্ধ করুন", selectMonth:"মাস নির্বাচন করুন", cancel:"বাতিল", punishTab:"⚖ বিশেষ শাস্তি ও জরিমানা", punishTitle:"বিশেষ শাস্তি / জরিমানা যোগ করুন", punishSub:"ক্লাস পালানো, অবাধ্যতা ইত্যাদির জন্য কারণসহ জরিমানা যোগ করুন যা স্টুডেন্ট পোর্টালে দেখাবে।", bunkChip:"ক্লাস পালানো", disobeyChip:"অবাধ্যতা", lateChip:"দেরিতে আসা", dressChip:"পোশাক ত্রুটি", needRollAmt:"রোল নম্বর এবং টাকার পরিমাণ লিখুন।", addFineBtn:"শাস্তি / জরিমানা যোগ", extraFine:"অতিরিক্ত জরিমানা", extraFineList:"অতিরিক্ত / কারণভিত্তিক জরিমানা", cause:"কারণ / নোট", attFine:"অনুপস্থিতির জরিমানা", grandTotal:"সর্বমোট জরিমানা", offDay:"ছুটি", holiday:"ছুটি / সাপ্তাহিক বন্ধ" }
+    alert:"টানা ৩ দিন বা বেশি অনুপস্থিত", absentOn:"অনুপস্থিত", myLogin:"আমার লগইন", newId:"নতুন লগইন আইডি", mob:"মোবাইল", oldPw:"পুরনো পাসওয়ার্ড", newPw:"নতুন পাসওয়ার্ড (৬+ অক্ষর)", save:"সংরক্ষণ", saved:"সংরক্ষিত ✓", today:"আজ", tomorrow:"আগামীকাল", overdue:"সময় পেরিয়েছে", minAgo:" মিনিট আগে", hAgo:" ঘণ্টা আগে", taka:"টাকা", markAttTab:"হাজিরা নিন", markAllP:"সবাই উপস্থিত", saveAtt:"হাজিরা সংরক্ষণ ও প্রকাশ", attSavedOk:"হাজিরা সংরক্ষিত ও প্রকাশিত হয়েছে!", todaySummary:"আজকের ক্লাসের সারসংক্ষেপ", monthSummary:"এই মাসের ক্লাসের সারসংক্ষেপ", unmarked:"অচিহ্নিত", absentToday:"আজকের অনুপস্থিত শিক্ষার্থী", postBtnTeacher:"✏ ＋ ক্লাসে নতুন পোস্ট (নোটিশ / বাড়ির কাজ)", postBtnCaptain:"✏ ＋ বাড়ির কাজ বা নোটিশ দিন", closeForm:"✕ ফর্ম বন্ধ করুন", selectMonth:"মাস নির্বাচন করুন", cancel:"বাতিল", punishTab:"⚖ বিশেষ শাস্তি ও জরিমানা", punishTitle:"বিশেষ শাস্তি / জরিমানা যোগ করুন", punishSub:"ক্লাস পালানো, অবাধ্যতা ইত্যাদির জন্য কারণসহ জরিমানা যোগ করুন যা স্টুডেন্ট পোর্টালে দেখাবে।", bunkChip:"ক্লাস পালানো", disobeyChip:"অবাধ্যতা", lateChip:"দেরিতে আসা", dressChip:"পোশাক ত্রুটি", needRollAmt:"রোল নম্বর এবং টাকার পরিমাণ লিখুন।", addFineBtn:"শাস্তি / জরিমানা যোগ", extraFine:"অতিরিক্ত জরিমানা", extraFineList:"অতিরিক্ত / কারণভিত্তিক জরিমানা", cause:"কারণ / নোট", attFine:"অনুপস্থিতির জরিমানা", grandTotal:"সর্বমোট জরিমানা", offDay:"ছুটি", holiday:"ছুটি / সাপ্তাহিক বন্ধ" }
 };
 let lang = localStorage.getItem("board_lang") || "en";
 const t = k => (T[lang] && T[lang][k]) || T.en[k] || k;
@@ -147,9 +147,9 @@ function render() {
   const v = $("view"); v.textContent = "";
   if (!auth) { v.append(loginView()); return; }
   if (!feed) return;
-  const tabs = [["board", t("board_t")]].concat(auth.role === "S" ? [["att", t("att")]] : [["punish", t("punishTab")], ["me", t("myLogin")]]);
+  const tabs = [["board", t("board_t")]].concat(auth.role === "S" ? [["att", t("att")]] : [["markAtt", t("markAttTab")], ["punish", t("punishTab")], ["me", t("myLogin")]]);
   v.append(h("div", { class: "tabs" }, tabs.map(([k, l]) => h("button", { class: "chip" + (tab === k ? " on" : ""), onclick: () => { tab = k; render(); } }, l))));
-  if (tab === "board") v.append(boardView()); else if (tab === "att") v.append(attView()); else if (tab === "punish") v.append(punishView()); else v.append(profileView());
+  if (tab === "board") v.append(boardView()); else if (tab === "att") v.append(attView()); else if (tab === "markAtt") v.append(markAttView()); else if (tab === "punish") v.append(punishView()); else v.append(profileView());
 }
 
 function loginView() {
@@ -315,7 +315,9 @@ function analyse(a) {
       }
       daysList.push({ d, wd, mark: c, isOff, isHoliday: hol.has(dtStr), isWeekend: wk.includes(wd) });
     }
-    const ended = new Date(y, mo, 0, 23, 59) < today, upTo = ended ? days : last;
+    const ended = new Date(y, mo, 0, 23, 59) < today;
+    const isCurrentMonth = today.getFullYear() === y && (today.getMonth() + 1) === mo;
+    const upTo = ended ? days : (isCurrentMonth ? Math.max(last, today.getDate()) : last);
     let worked = 0;
     for (let d = 1; d <= upTo; d++) {
       const wd = new Date(y, mo - 1, d).getDay();
@@ -526,6 +528,106 @@ function punishView() {
     });
   }
   wrap.append(listCard);
+  return wrap;
+}
+
+
+let markAttDate = new Date().toISOString().slice(0, 10);
+let markAttMap = {}; // roll -> 'P' / 'A' / 'L'
+let teacherRoster = [];
+let rosterLoaded = false;
+
+async function loadTeacherRoster() {
+  try {
+    const res = await get("roster");
+    if (res.ok) {
+      teacherRoster = res.roster || [];
+      rosterLoaded = true;
+    }
+  } catch (e) {}
+}
+
+function markAttView() {
+  if (!rosterLoaded) {
+    loadTeacherRoster().then(() => render());
+  }
+  const wrap = h("div");
+  const card = h("div", { class: "card" });
+  card.append(h("div", { class: "title" }, "✍ " + t("markAttTab")));
+  card.append(h("div", { class: "meta", style: "margin-bottom:12px;" }, t("cls") + " " + (feed ? feed.section : "") + " · " + (teacherRoster.length ? teacherRoster.length + " " + t("student") : "")));
+
+  const dateInp = h("input", {
+    type: "date",
+    value: markAttDate,
+    style: "font-weight:600; margin-bottom:10px;",
+    onchange: (e) => { markAttDate = e.target.value; render(); }
+  });
+
+  const allPBtn = h("button", {
+    class: "btn alt",
+    type: "button",
+    style: "margin-bottom:12px; width:100%; font-weight:600;",
+    onclick: () => {
+      teacherRoster.forEach(s => { markAttMap[s.roll] = "P"; });
+      render();
+    }
+  }, "✔ " + t("markAllP"));
+
+  card.append(h("label", {}, t("dueDate")), dateInp, allPBtn);
+
+  const listWrap = h("div", { style: "display:flex; flex-direction:column; gap:6px;" });
+  if (!teacherRoster.length) {
+    listWrap.append(h("div", { class: "note" }, t("loading")));
+  } else {
+    teacherRoster.forEach(s => {
+      const cur = markAttMap[s.roll] || "";
+      const row = h("div", {
+        style: "display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#fafafa; border-radius:8px; border:1px solid #eee;"
+      },
+        h("div", { style: "font-size:14px;" }, h("b", {}, s.roll), "  " + s.name),
+        h("div", { style: "display:flex; gap:4px;" },
+          ["P", "A", "L"].map(m => {
+            const isSel = cur === m;
+            const bg = isSel ? (m === "P" ? "#2e7d32" : m === "A" ? "#c62828" : "#fbc02d") : "#fff";
+            const col = isSel ? (m === "L" ? "#000" : "#fff") : "#333";
+            const bdr = isSel ? "transparent" : "#ccc";
+            return h("button", {
+              class: "pill",
+              style: "min-width:34px; padding:4px 8px; font-weight:700; background:" + bg + "; color:" + col + "; border:1px solid " + bdr + "; cursor:pointer;",
+              onclick: () => { markAttMap[s.roll] = m; render(); }
+            }, m);
+          })
+        )
+      );
+      listWrap.append(row);
+    });
+  }
+
+  card.append(listWrap);
+
+  const st = h("div", { class: "note", id: "ma-status", style: "margin-top:10px;" });
+  const saveBtn = h("button", {
+    class: "btn",
+    style: "margin-top:14px; width:100%; font-weight:700; font-size:15px; padding:12px;",
+    onclick: async () => {
+      if (!teacherRoster.length) return;
+      saveBtn.disabled = true;
+      st.textContent = t("loading");
+      try {
+        const res = await post({ action: "markDay", date: markAttDate, marks: markAttMap });
+        if (res.ok) {
+          st.textContent = "✔ " + t("attSavedOk") + " (" + res.saved + " " + t("student") + ")";
+          await loadAll();
+        }
+      } catch (e) {
+        st.textContent = String(e.message || e);
+      }
+      saveBtn.disabled = false;
+    }
+  }, t("saveAtt"));
+
+  card.append(saveBtn, st);
+  wrap.append(card);
   return wrap;
 }
 
