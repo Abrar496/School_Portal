@@ -55,6 +55,12 @@
   .cal-tag.P { background:#2e7d32; color:#fff; } .cal-tag.A { background:#c62828; color:#fff; } .cal-tag.L { background:#fbc02d; color:#212121; } .cal-tag.off { background:#9e9e9e; color:#fff; }
   .extra-fine-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #ffd8d8; }
   .extra-fine-row:last-child { border-bottom:0; }
+  header { background: linear-gradient(135deg, #4a148c 0%, #6750A4 100%); color: #fff; padding: 12px 16px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 5; box-shadow: 0 3px 12px rgba(74, 20, 140, 0.22); }
+  .fine-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
+  .fine-box { background: #faf8fc; border: 1px solid #e7e0ec; border-radius: 10px; padding: 8px; text-align: center; }
+  .fine-box.total { background: #ffebee; border-color: #ffcdd2; }
+  .fine-box b { display: block; font-size: 18px; margin-bottom: 2px; }
+  .fine-box span { font-size: 11px; color: var(--mute); line-height: 1.2; }
 </style>
 </head>
 <body>
@@ -70,7 +76,7 @@
 
 <script>
 // The teacher sets this once: the web-app link from the Google Apps Script deployment (see SETUP.md).
-const API = "https://script.google.com/macros/s/AKfycbzO_C-tkzx_Chw6W41Y7-HnZDNVPWTDF6S6JXoVwcCom5gCqsZx37Efn6wn4tGHYPhD/exec";
+const API = "https://github.com/Abrar496/School_Portal";
 const CREDIT = "Md. Nurul Abrar · Lecturer (Mathematics) · App created by Abrar · Mobile: 01616397272";
 
 const T = {
@@ -80,14 +86,14 @@ const T = {
     chooseClass:"Choose your class", newPost:"Post to the class", kind:"Type", subject:"Subject", ttl:"Title", details:"Details", dueDate:"Due date (homework)", to:"Only for these roll numbers (leave empty for everyone)",
     send:"Post", sent:"Posted ✓", del:"Delete", sure:"Delete this post?", needTitle:"Write a title.", board_t:"Board", att:"Attendance", private:"Only for you",
     attendance:"Attendance", present:"Present", absent:"Absent", leave:"Leave", days:"working days", fine:"Fine", thisMonth:"This month", total:"Total", noAtt:"Attendance has not been published yet.",
-    alert:"Absent 3 or more days in a row", absentOn:"Absent on", myLogin:"My login", newId:"New login id", mob:"Mobile", oldPw:"Old password", newPw:"New password (6+ characters)", save:"Save", saved:"Saved ✓", today:"today", tomorrow:"tomorrow", overdue:"overdue", minAgo:" min ago", hAgo:" h ago", taka:"Tk", markAttTab:"Mark Attendance", markAllP:"Mark All Present", saveAtt:"Save & Publish Attendance", attSavedOk:"Attendance saved & published successfully!", todaySummary:"Today's Class Summary", monthSummary:"Whole Month Class Summary", unmarked:"Unmarked", absentToday:"Absent students today", postBtnTeacher:"✏ ＋ Post to class (Notice / Homework)", postBtnCaptain:"✏ ＋ Post Homework or Notice", closeForm:"✕ Close form", selectMonth:"Select month", cancel:"Cancel", punishTab:"⚖ Punishments / Fines", punishTitle:"Add Special Punishment / Fine", punishSub:"Add manual fines with cause notes (for bunking class, disobedience, etc.) that sync to the student portal.", bunkChip:"Bunked class", disobeyChip:"Disobedience", lateChip:"Late arrival", dressChip:"Dress code", needRollAmt:"Please write roll number and fine amount.", addFineBtn:"Add Fine / Punishment", extraFine:"Extra / Manual fine", extraFineList:"Extra / Manual fines", cause:"Cause / Note", attFine:"Absence fine", grandTotal:"Grand total fine", offDay:"Off", holiday:"Holiday / Weekend" },
+    alert:"Absent 3 or more days in a row", absentOn:"Absent on", myLogin:"My login", newId:"New login id", mob:"Mobile", oldPw:"Old password", newPw:"New password (6+ characters)", save:"Save", saved:"Saved ✓", today:"today", tomorrow:"tomorrow", overdue:"overdue", minAgo:" min ago", hAgo:" h ago", taka:"Tk", collegeTitle:"Ispahani Public School & College", classSecTitle:"Class: XI - XII · Section : B (EV)", prevMonthFine:"Previous month(s) fine", thisMonthFine:"This month fine", extraFineLabel:"Additional / Extra fine", totalPayableFine:"Total payable fine", markAttTab:"Mark Attendance", markAllP:"Mark All Present", saveAtt:"Save & Publish Attendance", attSavedOk:"Attendance saved & published successfully!", todaySummary:"Today's Class Summary", monthSummary:"Whole Month Class Summary", unmarked:"Unmarked", absentToday:"Absent students today", postBtnTeacher:"✏ ＋ Post to class (Notice / Homework)", postBtnCaptain:"✏ ＋ Post Homework or Notice", closeForm:"✕ Close form", selectMonth:"Select month", cancel:"Cancel", punishTab:"⚖ Punishments / Fines", punishTitle:"Add Special Punishment / Fine", punishSub:"Add manual fines with cause notes (for bunking class, disobedience, etc.) that sync to the student portal.", bunkChip:"Bunked class", disobeyChip:"Disobedience", lateChip:"Late arrival", dressChip:"Dress code", needRollAmt:"Please write roll number and fine amount.", addFineBtn:"Add Fine / Punishment", extraFine:"Extra / Manual fine", extraFineList:"Extra / Manual fines", cause:"Cause / Note", attFine:"Absence fine", grandTotal:"Grand total fine", offDay:"Off", holiday:"Holiday / Weekend" },
   bn: { board:"ক্লাস বোর্ড", all:"সব", HOMEWORK:"বাড়ির কাজ", NOTICE:"নোটিশ", FOLLOWUP:"ফলো-আপ", MESSAGE:"বার্তা", due:"জমার তারিখ", by:"পোস্ট করেছেন", teacher:"শিক্ষক", captain:"ক্লাস ক্যাপ্টেন",
     none:"এখনো কিছু নেই।", done:"করা হয়েছে", undone:"করা হয়েছে ✓", offline:"ইন্টারনেট নেই। সর্বশেষ সংরক্ষিত তালিকা দেখানো হচ্ছে।", loading:"লোড হচ্ছে…",
     roll:"রোল", cls:"ক্লাস", student:"ছাত্র/অভিভাবক", teacherL:"শিক্ষক", mobile:"অভিভাবকের মোবাইল নম্বর", loginId:"লগইন আইডি বা মোবাইল", pw:"পাসওয়ার্ড", login:"লগইন", logout:"লগআউট",
     chooseClass:"আপনার ক্লাস বাছুন", newPost:"ক্লাসে পোস্ট করুন", kind:"ধরন", subject:"বিষয়", ttl:"শিরোনাম", details:"বিস্তারিত", dueDate:"জমার তারিখ (বাড়ির কাজ)", to:"শুধু এই রোল নম্বরের জন্য (সবার জন্য হলে খালি রাখুন)",
     send:"পোস্ট", sent:"পোস্ট হয়েছে ✓", del:"মুছুন", sure:"পোস্টটি মুছবেন?", needTitle:"শিরোনাম লিখুন।", board_t:"বোর্ড", att:"হাজিরা", private:"শুধু আপনার জন্য",
     attendance:"হাজিরা", present:"উপস্থিত", absent:"অনুপস্থিত", leave:"ছুটি", days:"কার্যদিবস", fine:"জরিমানা", thisMonth:"এই মাস", total:"মোট", noAtt:"হাজিরা এখনো প্রকাশ করা হয়নি।",
-    alert:"টানা ৩ দিন বা বেশি অনুপস্থিত", absentOn:"অনুপস্থিত", myLogin:"আমার লগইন", newId:"নতুন লগইন আইডি", mob:"মোবাইল", oldPw:"পুরনো পাসওয়ার্ড", newPw:"নতুন পাসওয়ার্ড (৬+ অক্ষর)", save:"সংরক্ষণ", saved:"সংরক্ষিত ✓", today:"আজ", tomorrow:"আগামীকাল", overdue:"সময় পেরিয়েছে", minAgo:" মিনিট আগে", hAgo:" ঘণ্টা আগে", taka:"টাকা", markAttTab:"হাজিরা নিন", markAllP:"সবাই উপস্থিত", saveAtt:"হাজিরা সংরক্ষণ ও প্রকাশ", attSavedOk:"হাজিরা সংরক্ষিত ও প্রকাশিত হয়েছে!", todaySummary:"আজকের ক্লাসের সারসংক্ষেপ", monthSummary:"এই মাসের ক্লাসের সারসংক্ষেপ", unmarked:"অচিহ্নিত", absentToday:"আজকের অনুপস্থিত শিক্ষার্থী", postBtnTeacher:"✏ ＋ ক্লাসে নতুন পোস্ট (নোটিশ / বাড়ির কাজ)", postBtnCaptain:"✏ ＋ বাড়ির কাজ বা নোটিশ দিন", closeForm:"✕ ফর্ম বন্ধ করুন", selectMonth:"মাস নির্বাচন করুন", cancel:"বাতিল", punishTab:"⚖ বিশেষ শাস্তি ও জরিমানা", punishTitle:"বিশেষ শাস্তি / জরিমানা যোগ করুন", punishSub:"ক্লাস পালানো, অবাধ্যতা ইত্যাদির জন্য কারণসহ জরিমানা যোগ করুন যা স্টুডেন্ট পোর্টালে দেখাবে।", bunkChip:"ক্লাস পালানো", disobeyChip:"অবাধ্যতা", lateChip:"দেরিতে আসা", dressChip:"পোশাক ত্রুটি", needRollAmt:"রোল নম্বর এবং টাকার পরিমাণ লিখুন।", addFineBtn:"শাস্তি / জরিমানা যোগ", extraFine:"অতিরিক্ত জরিমানা", extraFineList:"অতিরিক্ত / কারণভিত্তিক জরিমানা", cause:"কারণ / নোট", attFine:"অনুপস্থিতির জরিমানা", grandTotal:"সর্বমোট জরিমানা", offDay:"ছুটি", holiday:"ছুটি / সাপ্তাহিক বন্ধ" }
+    alert:"টানা ৩ দিন বা বেশি অনুপস্থিত", absentOn:"অনুপস্থিত", myLogin:"আমার লগইন", newId:"নতুন লগইন আইডি", mob:"মোবাইল", oldPw:"পুরনো পাসওয়ার্ড", newPw:"নতুন পাসওয়ার্ড (৬+ অক্ষর)", save:"সংরক্ষণ", saved:"সংরক্ষিত ✓", today:"আজ", tomorrow:"আগামীকাল", overdue:"সময় পেরিয়েছে", minAgo:" মিনিট আগে", hAgo:" ঘণ্টা আগে", taka:"টাকা", collegeTitle:"ইস্পাহানী স্কুল অ্যান্ড কলেজ", classSecTitle:"শ্রেণি: একাদশ-দ্বাদশ · শাখা: বি (ইভি)", prevMonthFine:"পূর্ববর্তী মাসের জরিমানা", thisMonthFine:"এই মাসের জরিমানা", extraFineLabel:"অতিরিক্ত / বিশেষ জরিমানা", totalPayableFine:"সর্বমোট প্রদেয় জরিমানা", markAttTab:"হাজিরা নিন", markAllP:"সবাই উপস্থিত", saveAtt:"হাজিরা সংরক্ষণ ও প্রকাশ", attSavedOk:"হাজিরা সংরক্ষিত ও প্রকাশিত হয়েছে!", todaySummary:"আজকের ক্লাসের সারসংক্ষেপ", monthSummary:"এই মাসের ক্লাসের সারসংক্ষেপ", unmarked:"অচিহ্নিত", absentToday:"আজকের অনুপস্থিত শিক্ষার্থী", postBtnTeacher:"✏ ＋ ক্লাসে নতুন পোস্ট (নোটিশ / বাড়ির কাজ)", postBtnCaptain:"✏ ＋ বাড়ির কাজ বা নোটিশ দিন", closeForm:"✕ ফর্ম বন্ধ করুন", selectMonth:"মাস নির্বাচন করুন", cancel:"বাতিল", punishTab:"⚖ বিশেষ শাস্তি ও জরিমানা", punishTitle:"বিশেষ শাস্তি / জরিমানা যোগ করুন", punishSub:"ক্লাস পালানো, অবাধ্যতা ইত্যাদির জন্য কারণসহ জরিমানা যোগ করুন যা স্টুডেন্ট পোর্টালে দেখাবে।", bunkChip:"ক্লাস পালানো", disobeyChip:"অবাধ্যতা", lateChip:"দেরিতে আসা", dressChip:"পোশাক ত্রুটি", needRollAmt:"রোল নম্বর এবং টাকার পরিমাণ লিখুন।", addFineBtn:"শাস্তি / জরিমানা যোগ", extraFine:"অতিরিক্ত জরিমানা", extraFineList:"অতিরিক্ত / কারণভিত্তিক জরিমানা", cause:"কারণ / নোট", attFine:"অনুপস্থিতির জরিমানা", grandTotal:"সর্বমোট জরিমানা", offDay:"ছুটি", holiday:"ছুটি / সাপ্তাহিক বন্ধ" }
 };
 let lang = localStorage.getItem("board_lang") || "en";
 const t = k => (T[lang] && T[lang][k]) || T.en[k] || k;
@@ -141,9 +147,10 @@ function logout() { localStorage.removeItem("board_auth"); auth = null; feed = n
 // ------------------------------------------------------------------ screens ----
 function render() {
   document.documentElement.lang = lang;
-  $("title").textContent = t("board"); $("lang").textContent = lang === "en" ? "বাংলা" : "English";
+  $("title").textContent = t("collegeTitle"); $("lang").textContent = lang === "en" ? "বাংলা" : "English";
   $("credit").textContent = CREDIT; $("out").textContent = t("logout"); $("out").hidden = !auth; $("refresh").hidden = !auth;
-  $("sub").textContent = auth && feed ? [t("cls") + " " + feed.section, auth.role === "T" ? t("teacher") : feed.name || (t("roll") + " " + feed.roll)].join(" · ") : "";
+  const userTag = auth && feed ? (auth.role === "T" ? t("teacher") : feed.name || (t("roll") + " " + feed.roll)) : "";
+  $("sub").textContent = [t("classSecTitle"), userTag].filter(Boolean).join(" · ");
   const v = $("view"); v.textContent = "";
   if (!auth) { v.append(loginView()); return; }
   if (!feed) return;
@@ -154,7 +161,9 @@ function render() {
 
 function loginView() {
   const err = h("div", { class: "error", id: "login-err" });
-  const sel = h("select", { id: "s-class" }, h("option", { value: "" }, t("chooseClass")), sections.map(s => h("option", { value: s }, s)));
+  const secList = sections.length ? sections : ["Section : B (EV)"];
+  const defSec = secList.find(s => /B/i.test(s)) || secList[0];
+  const sel = h("select", { id: "s-class", style: "font-weight:600;" }, secList.map(s => h("option", { value: s, selected: s === defSec }, s)));
   const roll = h("input", { id: "s-roll", type: "number", inputmode: "numeric" }), phone = h("input", { id: "s-phone", type: "tel", inputmode: "tel" });
   const uid = h("input", { id: "t-user", autocomplete: "username" }), pw = h("input", { id: "t-pw", type: "password", autocomplete: "current-password" });
   const go = h("button", { class: "btn", id: "login-btn", onclick: async () => {
@@ -329,9 +338,12 @@ function analyse(a) {
   const P = months.reduce((s, m) => s + m.P, 0), A = months.reduce((s, m) => s + m.A, 0), L = months.reduce((s, m) => s + m.L, 0), worked = months.reduce((s, m) => s + m.worked, 0);
   let streak = 0; for (let i = all.length - 1; i >= 0; i--) { if (all[i] === "A") streak++; else break; }
   const cur = months.length ? months[months.length - 1] : null;
+  const thisMonthFine = cur ? cur.fine : 0;
+  const prevMonthsFine = months.slice(0, -1).reduce((s, m) => s + m.fine, 0);
   const extraFines = a.extraFines || [];
   const extraTotal = extraFines.reduce((s, x) => s + (Number(x.amount) || 0), 0);
-  return { months, P, A, L, worked, pct: worked ? Math.min(100, Math.floor(P * 100 / worked)) : 0, fine: A * rate, thisFine: cur ? cur.fine : 0, rate, streak, extraFines, extraTotal, grandFine: A * rate + extraTotal };
+  const grandTotalFine = thisMonthFine + prevMonthsFine + extraTotal;
+  return { months, P, A, L, worked, pct: worked ? Math.min(100, Math.floor(P * 100 / worked)) : 0, fine: A * rate, thisFine: thisMonthFine, prevFine: prevMonthsFine, rate, streak, extraFines, extraTotal, grandFine: grandTotalFine };
 }
 
 function attView() {
@@ -350,22 +362,31 @@ function attView() {
     selectedMonthKey = uniqueMonths[uniqueMonths.length - 1].month;
   }
   
-  // Summary card
-  const fineStats = [
-    h("div", {}, h("b", { class: r.fine ? "bad" : "", id: "fine-total" }, r.fine + " " + t("taka")), h("span", {}, t("attFine") + (r.rate ? " (" + r.rate + " Tk/d)" : "")))
-  ];
-  if (r.extraTotal > 0) {
-    fineStats.push(h("div", {}, h("b", { class: "bad", id: "fine-extra" }, r.extraTotal + " " + t("taka")), h("span", {}, t("extraFine"))));
-    fineStats.push(h("div", {}, h("b", { class: "bad", id: "fine-grand" }, r.grandFine + " " + t("taka")), h("span", {}, t("grandTotal"))));
-  } else if (r.thisFine != null) {
-    fineStats.unshift(h("div", {}, h("b", { class: r.thisFine ? "bad" : "", id: "fine-month" }, r.thisFine + " " + t("taka")), h("span", {}, t("fine") + " · " + t("thisMonth"))));
-  }
+  // Summary card with 4-box fine grid
+  const fineGrid = h("div", { class: "fine-grid" },
+    h("div", { class: "fine-box" },
+      h("b", { class: r.thisFine ? "bad" : "good", id: "fine-month" }, r.thisFine + " " + t("taka")),
+      h("span", {}, t("thisMonthFine"))
+    ),
+    h("div", { class: "fine-box" },
+      h("b", { class: r.prevFine ? "bad" : "good", id: "fine-prev" }, r.prevFine + " " + t("taka")),
+      h("span", {}, t("prevMonthFine"))
+    ),
+    h("div", { class: "fine-box" },
+      h("b", { class: r.extraTotal ? "bad" : "good", id: "fine-extra" }, r.extraTotal + " " + t("taka")),
+      h("span", {}, t("extraFineLabel"))
+    ),
+    h("div", { class: "fine-box total" },
+      h("b", { class: "bad", style: "font-size:20px;", id: "fine-grand" }, r.grandFine + " " + t("taka")),
+      h("span", { style: "font-weight:700; color:var(--red);" }, t("totalPayableFine"))
+    )
+  );
 
   wrap.append(h("div", { class: "card" + (r.streak >= 3 ? " alert" : "") },
     r.streak >= 3 && h("div", { class: "bad title", id: "att-alert" }, "🔴 ⚠ " + t("alert") + " (" + r.streak + ")"),
     h("div", { class: "row" }, h("div", { class: "big " + (r.pct >= 75 ? "good" : "bad"), id: "att-pct" }, r.pct + "%"), h("div", {}, t("attendance"), h("br"), r.P + " / " + r.worked + " " + t("days"))),
     h("div", { class: "stats" }, h("div", {}, h("b", {}, r.P), h("span", {}, t("present"))), h("div", {}, h("b", { class: r.A ? "bad" : "" }, r.A), h("span", {}, t("absent"))), h("div", {}, h("b", {}, r.L), h("span", {}, t("leave")))),
-    r.rate > 0 && h("div", { class: "stats" }, fineStats)
+    fineGrid
   ));
 
   // If student has manual/extra fines with cause notes (e.g. disobedience, bunked class)
