@@ -76,7 +76,7 @@
 
 <script>
 // The teacher sets this once: the web-app link from the Google Apps Script deployment (see SETUP.md).
-const API = "https://script.google.com/macros/s/AKfycbwx08L0y0avOqOOFi9aJeCVImqrci7wnzzZoeAonJLefQmgr6TCF721Ym77bHfSV6OB/exec";
+const API = "https://script.google.com/macros/s/AKfycbz75LgmLkQvvmqZV4A1vJvweaBFuMZdMZpRdMp2c39dfRuXYSQR582xuDJk5MW3-TYT/exec";
 const CREDIT = "Md. Nurul Abrar · Lecturer (Mathematics) · App created by Abrar · Mobile: 01616397272";
 
 const T = {
@@ -99,7 +99,7 @@ let lang = localStorage.getItem("board_lang") || "en";
 const t = k => (T[lang] && T[lang][k]) || T.en[k] || k;
 const nowDate = () => window.__NOW ? new Date(window.__NOW) : new Date();   // (a test can set __NOW)
 
-let auth = null, feed = null, att = null, tab = "board", kindTab = "ALL", subject = "", sections = [], loginRole = "S", showCompose = false, selectedMonthKey = null;
+let auth = null, feed = null, att = null, tab = "board", kindTab = "ALL", subject = "", sections = JSON.parse(localStorage.getItem("board_sections") || '["XI-B"]'), loginRole = "S", showCompose = false, selectedMonthKey = null;
 
 function h(tag, props, ...kids) {
   const e = document.createElement(tag);
@@ -168,9 +168,9 @@ function render() {
 
 function loginView() {
   const err = h("div", { class: "error", id: "login-err" });
-  const secList = sections.length ? sections : ["Section : B (EV)"];
+  const secList = sections.length ? sections : ["XI-B"];
   const defSec = secList.find(s => /B/i.test(s)) || secList[0];
-  const sel = h("select", { id: "s-class", style: "font-weight:600;" }, secList.map(s => h("option", { value: s, selected: s === defSec }, s)));
+  const sel = h("select", { id: "s-class", style: "font-weight:600;" }, secList.map(s => h("option", { value: s, selected: s === defSec }, s === "XI-B" ? "Class XI - XII · Section B (EV)" : s)));
   const roll = h("input", { id: "s-roll", type: "number", inputmode: "numeric" }), phone = h("input", { id: "s-phone", type: "tel", inputmode: "tel" });
   const uid = h("input", { id: "t-user", autocomplete: "username" }), pw = h("input", { id: "t-pw", type: "password", autocomplete: "current-password" });
   const go = h("button", { class: "btn", id: "login-btn", onclick: async () => {
@@ -674,7 +674,7 @@ async function start() {
   try { auth = JSON.parse(localStorage.getItem("board_auth") || "null"); } catch (e) { auth = null; }
   if (auth) { try { feed = JSON.parse(localStorage.getItem("board_cache_" + key()) || "null"); att = JSON.parse(localStorage.getItem("board_att_" + key()) || "null"); } catch (e) {} }
   render();
-  if (!auth) { try { sections = (await api(API + "?action=sections")).sections; } catch (e) { setMsg(String(e.message || "No internet"), "error"); } render(); }
+  if (!auth) { try { const sc = (await api(API + "?action=sections")).sections; if (sc && sc.length) { sections = sc; localStorage.setItem("board_sections", JSON.stringify(sc)); } } catch (e) { setMsg(String(e.message || "No internet"), "error"); } render(); }
   else loadAll();
 }
 start();
