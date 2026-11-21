@@ -130,7 +130,7 @@
       <button class="tab-btn active" onclick="switchTab('notices', this)">Notice / HW</button>
       <button class="tab-btn" onclick="switchTab('attendance', this)">Attendance</button>
       <button class="tab-btn" onclick="switchTab('marks', this)">Marks</button>
-      <button class="tab-btn" onclick="switchTab('profile', this)">My Profile</button>
+      <button class="tab-btn" id="tabBtnProfile" onclick="switchTab('profile', this)">My Profile</button>
     </div>
 
     <div id="tab-notices" class="content-pane active">
@@ -300,17 +300,235 @@
     }
   }
 
+  let tAttRoster = [];
+  let tAttMarksMap = {};
+  let tAttDayMarks = {};
+  let tProfilesList = [];
+
   async function loadTeacherDashboard() {
     document.getElementById('loginCard').style.display = 'none';
     document.getElementById('dashboardCard').style.display = 'block';
     document.getElementById('studentName').textContent = session.name + ' (Teacher)';
     document.getElementById('studentMeta').textContent = session.section + ' · Login: ' + session.user;
+    document.getElementById('tabBtnProfile').textContent = 'Students Info';
     document.getElementById('captainBox').style.display = 'block';
-    document.getElementById('attendanceSummary').innerHTML = '<div style="padding:14px;color:var(--text-muted);">Teachers manage attendance directly in the <strong>Abrar EduHub</strong> app (Classes tab).</div>';
-    document.getElementById('attendanceMonths').innerHTML = '';
     loadTeacherNotices();
+    initTeacherAttendance();
     loadTeacherMarks();
-    document.getElementById('profileDetails').innerHTML = '<div style="padding:14px;color:var(--text-muted);">Signed in as <strong>' + escapeHtml(session.name) + '</strong> (' + escapeHtml(session.section) + ').</div>';
+    loadTeacherStudentsInfo();
+  }
+
+  function todayIsoLocal() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function initTeacherAttendance() {
+    const sumDiv = document.getElementById('attendanceSummary');
+    const listDiv = document.getElementById('attendanceMonths');
+    const today = todayIsoLocal();
+    sumDiv.innerHTML = `
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;">
+        <input type="date" id="tAttDate" value="${today}" onchange="loadTeacherAttendanceMonth()" style="flex:1;min-width:140px;margin:0;">
+        <button type="button" onclick="markAllTeacherPresent()" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:#ecfdf5;color:#065f46;font-weight:700;font-size:0.8rem;cursor:pointer;">✓ All Present</button>
+        <button type="button" onclick="saveTeacherAttendance()" id="tAttSaveBtn" style="padding:8px 14px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-weight:700;font-size:0.8rem;cursor:pointer;">☁ Upload Attendance</button>
+      </div>
+      <div id="tAttStats" class="stat-grid" style="margin-bottom:10px;"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+        <button type="button" onclick="copyTeacherSummary(false)" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:#f8fafc;color:#1e293b;font-weight:600;font-size:0.78rem;cursor:pointer;">📋 Copy Today's Summary</button>
+        <button type="button" onclick="copyTeacherSummary(true)" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:#fef2f2;color:#991b1b;font-weight:600;font-size:0.78rem;cursor:pointer;">📋 Copy Absent List</button>
+      </div>
+      <div id="tAttStatus" style="font-size:0.8rem;color:var(--primary);margin-bottom:6px;"></div>
+    `;
+    listDiv.innerHTML = 'Loading class roster...';
+    loadTeacherAttendanceMonth();
+  }
+
+  async function loadTeacherAttendanceMonth() {
+    const dateStr = (document.getElementById('tAttDate') || {}).value || todayIsoLocal();
+    const ym = dateStr.slice(0, 7);
+    const dayIdx = Math.max(0, Math.min(30, (parseInt(dateStr.slice(8, 10), 10) || 1) - 1));
+    const listDiv = document.getElementById('attendanceMonths');
+    try {
+      const res = await apiCall({}, { action: 'attendanceClass', u: session.user, tk: session.token, month: ym });
+      if (!res.ok) { listDiv.innerHTML = '<div style="color:#dc2626;">' + escapeHtml(res.error || 'Failed to load roster') + '</div>'; return; }
+      tAttRoster = res.roster || [];
+      tAttMarksMap = res.marksMap || {};
+      tAttDayMarks = {};
+      tAttRoster.forEach(st => {
+        const str = String(tAttMarksMap[st.roll] || '');
+        const ch = (str[dayIdx] || '').toUpperCase();
+        tAttDayMarks[st.roll] = (ch === 'P' || ch === 'A' || ch === 'L') ? ch : '';
+      });
+      renderTeacherAttendanceRows();
+    } catch (e) {
+      listDiv.innerHTML = '<div style="color:#dc2626;">Network error loading roster.</div>';
+    }
+  }
+
+  function setStudentAttMark(roll, val) {
+    tAttDayMarks[roll] = (tAttDayMarks[roll] === val) ? '' : val;
+    renderTeacherAttendanceRows();
+  }
+
+  function markAllTeacherPresent() {
+    tAttRoster.forEach(st => { tAttDayMarks[st.roll] = 'P'; });
+    renderTeacherAttendanceRows();
+  }
+
+  function renderTeacherAttendanceRows() {
+    const listDiv = document.getElementById('attendanceMonths');
+    const statsDiv = document.getElementById('tAttStats');
+    let p = 0, a = 0, l = 0;
+    tAttRoster.forEach(st => {
+      const v = tAttDayMarks[st.roll];
+      if (v === 'P') p++;
+      else if (v === 'A') a++;
+      else if (v === 'L') l++;
+    });
+    const marked = p + a + l;
+    const pct = marked > 0 ? Math.round((p / marked) * 100) : 0;
+    statsDiv.innerHTML = `
+      <div class="stat-box"><div class="stat-val" style="color:var(--success);">${p}</div><div class="stat-lbl">Present</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--danger);">${a}</div><div class="stat-lbl">Absent</div></div>
+      <div class="stat-box"><div class="stat-val" style="color:var(--warning);">${l}</div><div class="stat-lbl">Leave</div></div>
+      <div class="stat-box"><div class="stat-val">${pct}%</div><div class="stat-lbl">Today %</div></div>
+    `;
+
+    if (!tAttRoster.length) {
+      listDiv.innerHTML = '<div style="padding:14px;color:var(--text-muted);">No students uploaded yet. Use "1 Upload students" in Abrar EduHub app first.</div>';
+      return;
+    }
+
+    const btnCss = (active, bg, fg) => active
+      ? `width:34px;height:34px;border-radius:50%;border:none;font-weight:800;font-size:0.8rem;cursor:pointer;background:${bg};color:#fff;`
+      : `width:34px;height:34px;border-radius:50%;border:1px solid var(--border);font-weight:700;font-size:0.8rem;cursor:pointer;background:#f8fafc;color:${fg};`;
+
+    listDiv.innerHTML = tAttRoster.map(st => {
+      const cur = tAttDayMarks[st.roll] || '';
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 6px;border-bottom:1px solid var(--border);">
+          <div style="min-width:0;flex:1;">
+            <div style="font-weight:700;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${st.roll} · ${escapeHtml(st.name)}</div>
+          </div>
+          <div style="display:flex;gap:5px;flex-shrink:0;">
+            <button type="button" onclick="setStudentAttMark(${st.roll}, 'P')" style="${btnCss(cur === 'P', '#16a34a', '#16a34a')}">P</button>
+            <button type="button" onclick="setStudentAttMark(${st.roll}, 'A')" style="${btnCss(cur === 'A', '#dc2626', '#dc2626')}">A</button>
+            <button type="button" onclick="setStudentAttMark(${st.roll}, 'L')" style="${btnCss(cur === 'L', '#d97706', '#d97706')}">L</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function saveTeacherAttendance() {
+    const dateStr = (document.getElementById('tAttDate') || {}).value || todayIsoLocal();
+    const ym = dateStr.slice(0, 7);
+    const dayIdx = Math.max(0, Math.min(30, (parseInt(dateStr.slice(8, 10), 10) || 1) - 1));
+    const stat = document.getElementById('tAttStatus');
+    const btn = document.getElementById('tAttSaveBtn');
+    btn.disabled = true;
+    stat.textContent = 'Uploading attendance to server...';
+    try {
+      const rows = tAttRoster.map(st => {
+        const arr = (String(tAttMarksMap[st.roll] || '').padEnd(31, ' ')).slice(0, 31).split('');
+        arr[dayIdx] = tAttDayMarks[st.roll] || ' ';
+        const newStr = arr.join('').replace(/\s+$/, '');
+        tAttMarksMap[st.roll] = newStr;
+        return { roll: st.roll, month: ym, marks: newStr };
+      });
+      const res = await apiCall({}, { action: 'attendance', u: session.user, tk: session.token, rows });
+      stat.textContent = res.ok ? `✓ Uploaded attendance for ${dateStr} (${res.saved} students saved).` : ('Error: ' + (res.error || 'Failed'));
+    } catch (e) {
+      stat.textContent = 'Upload failed: ' + e.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function copyTeacherSummary(absentOnly) {
+    const dateStr = (document.getElementById('tAttDate') || {}).value || todayIsoLocal();
+    let p = 0, a = 0, l = 0;
+    const absentees = [];
+    tAttRoster.forEach(st => {
+      const v = tAttDayMarks[st.roll];
+      if (v === 'P') p++;
+      else if (v === 'A') { a++; absentees.push(`${st.roll} - ${st.name}`); }
+      else if (v === 'L') l++;
+    });
+    const marked = p + a + l;
+    const pct = marked > 0 ? Math.round((p / marked) * 100) : 0;
+    const text = absentOnly
+      ? `Absentee List (${session.section})\nDate: ${dateStr}\nTotal Absent: ${a}\n` + (absentees.length ? absentees.join('\n') : 'None')
+      : `Section: ${session.section}\nDate: ${dateStr}\nPresent: ${p} (${pct}%)\nAbsent: ${a}\nLeave: ${l}\nTotal Students: ${tAttRoster.length}` + (absentees.length ? `\n\nAbsent Rolls:\n${absentees.join('\n')}` : '');
+    const stat = document.getElementById('tAttStatus');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        stat.textContent = absentOnly ? '✓ Absentee list copied to clipboard!' : '✓ Daily summary copied to clipboard!';
+      }).catch(() => alert(text));
+    } else {
+      alert(text);
+    }
+  }
+
+  async function loadTeacherStudentsInfo() {
+    const el = document.getElementById('profileDetails');
+    el.innerHTML = 'Loading students directory...';
+    try {
+      const res = await apiCall({}, { action: 'profilesClass', u: session.user, tk: session.token });
+      tProfilesList = (res.ok && res.profiles) ? res.profiles : [];
+      if (!tProfilesList.length) {
+        el.innerHTML = '<div style="padding:14px;color:var(--text-muted);">No student profiles synced yet. Open <strong>Abrar EduHub → Classes → Students</strong> and tap <strong>☁ Sync to Portal</strong>.</div>';
+        return;
+      }
+      el.innerHTML = `
+        <input type="text" id="tStuSearch" oninput="renderTeacherStudentsList()" placeholder="Search by Roll, Name, Phone, 4th Subject, Blood..." style="margin-bottom:10px;">
+        <div id="tStuList"></div>
+      `;
+      renderTeacherStudentsList();
+    } catch (e) {
+      el.innerHTML = '<div style="color:#dc2626;padding:14px;">Could not load student profiles.</div>';
+    }
+  }
+
+  function renderTeacherStudentsList() {
+    const q = ((document.getElementById('tStuSearch') || {}).value || '').trim().toLowerCase();
+    const box = document.getElementById('tStuList');
+    const filtered = tProfilesList.filter(s => {
+      if (!q) return true;
+      return [s.roll, s.nameEn, s.nameBn, s.contact, s.fName, s.mName, s.subj4, s.blood, s.sscSchool]
+        .join(' ').toLowerCase().includes(q);
+    });
+    box.innerHTML = filtered.map(s => {
+      const phone = s.contact || s.mMob || s.fMob || '';
+      let wa = String(phone).replace(/\D/g, '');
+      if (wa.startsWith('01')) wa = '88' + wa;
+      return `
+        <details style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:#fff;">
+          <summary style="cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <div>
+              <strong>${s.roll} · ${escapeHtml(s.nameEn)}</strong>
+              <div style="font-size:0.78rem;color:var(--text-muted);">${escapeHtml(s.nameBn || '')} ${s.subj4 ? '· ' + escapeHtml(s.subj4) : ''} ${s.blood ? '· ' + escapeHtml(s.blood) : ''}</div>
+            </div>
+            <span style="font-size:0.76rem;color:var(--primary);font-weight:700;">Details ▾</span>
+          </summary>
+          <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:0.82rem;line-height:1.55;">
+            <div><strong>Father:</strong> ${escapeHtml(s.fName || '–')} ${s.fMob ? '(' + escapeHtml(s.fMob) + ')' : ''}</div>
+            <div><strong>Mother:</strong> ${escapeHtml(s.mName || '–')} ${s.mMob ? '(' + escapeHtml(s.mMob) + ')' : ''}</div>
+            <div><strong>Contact:</strong> ${escapeHtml(phone || '–')}</div>
+            <div><strong>SSC:</strong> ${escapeHtml(s.sscSchool || '–')} ${s.sscGpa ? '· GPA ' + escapeHtml(s.sscGpa) : ''} ${s.sscMarks ? '· Marks ' + escapeHtml(s.sscMarks) : ''}</div>
+            <div><strong>Address:</strong> ${escapeHtml(s.presAddr || '–')}</div>
+            ${phone ? `<div style="display:flex;gap:8px;margin-top:8px;">
+              <a href="tel:${escapeHtml(phone.replace(/[^0-9+]/g, ''))}" style="padding:5px 10px;border-radius:6px;background:var(--primary);color:#fff;text-decoration:none;font-size:0.76rem;font-weight:700;">📞 Call</a>
+              ${wa ? `<a href="https://wa.me/${wa}" target="_blank" rel="noopener" style="padding:5px 10px;border-radius:6px;background:#16a34a;color:#fff;text-decoration:none;font-size:0.76rem;font-weight:700;">WhatsApp</a>` : ''}
+            </div>` : ''}
+          </div>
+        </details>
+      `;
+    }).join('') || '<div style="color:var(--text-muted);padding:12px;">No matching students.</div>';
   }
 
   async function loadTeacherNotices() {
