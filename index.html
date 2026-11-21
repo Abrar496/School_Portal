@@ -1,684 +1,428 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#6750A4">
-<title>Class board</title>
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon-192.png">
-<style>
-  :root { --p:#6750A4; --bg:#fbf8ff; --ink:#1d1b20; --mute:#6f6a78; --red:#c62828; --green:#2e7d32; --amber:#ef6c00; }
-  * { box-sizing: border-box; }
-  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Bengali", sans-serif; background:var(--bg); color:var(--ink); }
-  header { background:var(--p); color:#fff; padding:12px 14px; display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:5; }
-  .logo { width:38px; height:38px; border-radius:10px; background:#fff; color:var(--p); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:700; }
-  header h1 { margin:0; font-size:17px; } header .sub { font-size:12px; opacity:.85; } .grow { flex:1; }
-  button { font:inherit; cursor:pointer; }
-  .pill { background:rgba(255,255,255,.18); color:#fff; border:0; border-radius:999px; padding:6px 12px; font-size:13px; }
-  main { max-width:720px; margin:0 auto; padding:10px 12px 90px; }
-  .tabs, .chips { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
-  .chip { border:1px solid #cfc8dc; background:#fff; color:var(--ink); border-radius:999px; padding:7px 14px; font-size:14px; }
-  .chip.on { background:#e8def8; border-color:var(--p); color:#3b2a73; font-weight:600; }
-  .card { background:#fff; border-radius:14px; padding:14px; margin:10px 0; box-shadow:0 1px 3px rgba(0,0,0,.08); }
-  .card.done { opacity:.55; } .card.alert { background:#ffebee; border:1px solid var(--red); }
-  .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-  .badge { font-size:12px; padding:3px 9px; border-radius:999px; color:#fff; }
-  .HOMEWORK { background:#1565c0; } .NOTICE { background:#6a1b9a; } .FOLLOWUP { background:#ef6c00; } .MESSAGE { background:#00897b; }
-  .subj { font-size:12px; background:#eee; border-radius:999px; padding:3px 9px; }
-  .title { font-size:17px; font-weight:600; margin:8px 0 4px; }
-  .body { white-space:pre-wrap; word-break:break-word; line-height:1.45; }
-  .meta { color:var(--mute); font-size:12px; margin-top:8px; display:flex; gap:10px; flex-wrap:wrap; }
-  .due { font-weight:600; } .due.soon { color:var(--amber); } .due.late { color:var(--red); }
-  .big { font-size:40px; font-weight:700; line-height:1; } .bad { color:var(--red); } .good { color:var(--green); }
-  .stats { display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; } .stats div { min-width:70px; } .stats b { display:block; font-size:20px; } .stats span { font-size:12px; color:var(--mute); }
-  .empty, .note { text-align:center; color:var(--mute); padding:24px 10px; } .error { color:var(--red); text-align:center; padding:10px; }
-  .actions { display:flex; gap:10px; margin-top:10px; }
-  .btn { background:var(--p); color:#fff; border:0; border-radius:10px; padding:10px 16px; } .btn.alt { background:#fff; color:var(--p); border:1px solid var(--p); } .btn.red { background:#fff; color:var(--red); border:1px solid var(--red); }
-  label { display:block; font-size:13px; color:var(--mute); margin:10px 0 4px; }
-  input, select, textarea { width:100%; font:inherit; padding:10px; border:1px solid #cfc8dc; border-radius:10px; background:#fff; } textarea { min-height:80px; }
-  footer { text-align:center; color:var(--mute); font-size:12px; padding:18px 10px 30px; }
-  .refresh { position:fixed; right:16px; bottom:16px; background:var(--p); color:#fff; border:0; border-radius:999px; padding:12px 18px; box-shadow:0 2px 8px rgba(0,0,0,.25); }
-  a { color:#1a5fb4; }
-  .cal-grid { display:grid; grid-template-columns:repeat(7, 1fr); gap:4px; text-align:center; margin-top:8px; }
-  .cal-head { font-size:11px; font-weight:600; color:var(--mute); padding:4px 0; }
-  .cal-cell { border-radius:8px; padding:4px 2px; min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#fafafa; border:1px solid #e8e3f0; }
-  .cal-cell.empty { background:transparent; border-color:transparent; }
-  .cal-cell .cal-d { font-size:11px; font-weight:600; color:var(--ink); margin-bottom:2px; }
-  .cal-cell .cal-m { font-size:11px; font-weight:700; border-radius:4px; padding:1px 5px; }
-  .cal-cell.P { background:#e8f5e9; border-color:#a5d6a7; } .cal-cell.P .cal-m { background:#2e7d32; color:#fff; }
-  .cal-cell.A { background:#ffebee; border-color:#ef9a9a; } .cal-cell.A .cal-m { background:#c62828; color:#fff; }
-  .cal-cell.L { background:#fffde7; border-color:#fff59d; } .cal-cell.L .cal-m { background:#fbc02d; color:#212121; }
-  .cal-cell.off { background:#f5f5f5; border-color:#e0e0e0; opacity:.85; } .cal-cell.off .cal-m { font-size:10px; color:#757575; font-weight:normal; }
-  .cal-cell .cal-dot { width:4px; height:4px; border-radius:50%; background:#d0c8dc; }
-  .cal-tag { display:inline-block; border-radius:4px; padding:1px 6px; font-weight:700; font-size:11px; }
-  .cal-tag.P { background:#2e7d32; color:#fff; } .cal-tag.A { background:#c62828; color:#fff; } .cal-tag.L { background:#fbc02d; color:#212121; } .cal-tag.off { background:#9e9e9e; color:#fff; }
-  .extra-fine-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #ffd8d8; }
-  .extra-fine-row:last-child { border-bottom:0; }
-  header { background: linear-gradient(135deg, #4a148c 0%, #6750A4 100%); color: #fff; padding: 12px 16px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 5; box-shadow: 0 3px 12px rgba(74, 20, 140, 0.22); }
-  .fine-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
-  .fine-box { background: #faf8fc; border: 1px solid #e7e0ec; border-radius: 10px; padding: 8px; text-align: center; }
-  .fine-box.total { background: #ffebee; border-color: #ffcdd2; }
-  .fine-box b { display: block; font-size: 18px; margin-bottom: 2px; }
-  .fine-box span { font-size: 11px; color: var(--mute); line-height: 1.2; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Portal - School Server</title>
+  <style>
+    :root {
+      --primary: #5c4b8b;
+      --primary-hover: #4a3c72;
+      --bg: #f8f9fa;
+      --card-bg: #ffffff;
+      --text: #2d3748;
+      --text-muted: #718096;
+      --border: #e2e8f0;
+      --success: #38a169;
+      --danger: #e53e3e;
+      --warning: #dd6b20;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
+    body { background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; padding: 16px; }
+    .container { width: 100%; max-width: 560px; margin: auto; }
+    .card { background: var(--card-bg); border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); padding: 24px; margin-bottom: 16px; border: 1px solid var(--border); }
+    h1 { font-size: 1.5rem; color: var(--primary); margin-bottom: 8px; text-align: center; }
+    p.subtitle { font-size: 0.9rem; color: var(--text-muted); text-align: center; margin-bottom: 24px; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+    input, select, textarea { width: 100%; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--border); font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+    button.btn { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    button.btn:hover { background: var(--primary-hover); }
+    button.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .error-msg { background: #fff5f5; border: 1px solid #feb2b2; color: var(--danger); padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 16px; display: none; }
+    .loading { text-align: center; color: var(--text-muted); font-size: 0.9rem; margin: 12px 0; display: none; }
+    
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .tab-btn { flex: 1; padding: 8px 12px; border: none; background: none; font-weight: 600; color: var(--text-muted); border-radius: 8px; cursor: pointer; }
+    .tab-btn.active { background: var(--primary); color: #fff; }
+    
+    .content-pane { display: none; }
+    .content-pane.active { display: block; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: bold; }
+    .badge-present { background: #c6f6d5; color: #22543d; }
+    .badge-absent { background: #fed7d7; color: #742a2a; }
+    .badge-leave { background: #feebc8; color: #7b341e; }
+    
+    .notice-item { border-bottom: 1px solid var(--border); padding: 12px 0; }
+    .notice-item:last-child { border-bottom: none; }
+    .notice-title { font-weight: 600; margin-bottom: 4px; }
+    .notice-meta { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; }
+    .notice-body { font-size: 0.9rem; line-height: 1.4; white-space: pre-line; }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+    .stat-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 10px; text-align: center; }
+    .stat-val { font-size: 1.15rem; font-weight: 700; color: var(--primary); }
+    .stat-lbl { font-size: 0.72rem; color: var(--text-muted); }
+
+    .day-pills { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+    .day-pill { width: 26px; height: 26px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; }
+    .day-P { background: #c6f6d5; color: #22543d; }
+    .day-A { background: #fed7d7; color: #742a2a; }
+    .day-L { background: #feebc8; color: #7b341e; }
+    .day-off { background: #edf2f7; color: #a0aec0; }
+
+    .table-container { overflow-x: auto; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: #f1f5f9; color: var(--text); }
+  </style>
 </head>
 <body>
-<header>
-  <div class="logo">✔</div>
-  <div class="grow"><h1 id="title"></h1><div class="sub" id="sub"></div></div>
-  <button class="pill" id="lang"></button>
-  <button class="pill" id="out" hidden></button>
-</header>
-<main><div id="msg"></div><div id="view"></div></main>
-<button class="refresh" id="refresh" hidden>⟳</button>
-<footer id="credit"></footer>
+
+<div class="container">
+  <div id="loginCard" class="card">
+    <h1>Student Portal</h1>
+    <p class="subtitle">Access your attendance, homework, and exam marks</p>
+    <div id="loginError" class="error-msg"></div>
+
+    <div class="form-group">
+      <label for="sectionSelect">Class / Section</label>
+      <select id="sectionSelect"><option value="">Loading sections...</option></select>
+    </div>
+
+    <div class="form-group">
+      <label for="rollInput">Roll Number</label>
+      <input type="number" id="rollInput" placeholder="e.g. 213" min="1">
+    </div>
+
+    <div class="form-group">
+      <label for="phoneInput">Guardian Mobile Number</label>
+      <input type="tel" id="phoneInput" placeholder="e.g. 01700000000">
+    </div>
+
+    <button id="loginBtn" class="btn" onclick="doLogin()">View Details</button>
+    <div id="loginLoading" class="loading">Verifying credentials...</div>
+  </div>
+
+  <div id="dashboardCard" class="card" style="display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <div>
+        <h2 id="studentName" style="font-size: 1.2rem; color: var(--primary);">Student Name</h2>
+        <span id="studentMeta" style="font-size: 0.8rem; color: var(--text-muted);">Section | Roll</span>
+      </div>
+      <button onclick="logout()" style="background: none; border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">Logout</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('notices', this)">Notice / HW</button>
+      <button class="tab-btn" onclick="switchTab('attendance', this)">Attendance</button>
+      <button class="tab-btn" onclick="switchTab('marks', this)">Marks</button>
+      <button class="tab-btn" onclick="switchTab('profile', this)">My Profile</button>
+    </div>
+
+    <div id="tab-notices" class="content-pane active">
+      <div id="captainBox" style="display:none; background:#f8fafc; padding:12px; border-radius:10px; border:1px solid var(--border); margin-bottom:14px;">
+        <div style="font-weight:600; font-size:0.85rem; margin-bottom:8px; color:var(--primary);">Class Captain: Post Homework / Notice</div>
+        <div style="display:flex; gap:8px; margin-bottom:8px;">
+          <select id="postKind" style="flex:1;"><option value="HOMEWORK">Homework</option><option value="NOTICE">Notice</option></select>
+          <input type="text" id="postSubject" placeholder="Subject (optional)" style="flex:1;">
+        </div>
+        <input type="text" id="postTitle" placeholder="Title" style="margin-bottom:8px;">
+        <textarea id="postBody" rows="2" placeholder="Details..." style="margin-bottom:8px;"></textarea>
+        <button class="btn" style="padding:8px; font-size:0.85rem;" onclick="postNotice()">Post to Class</button>
+      </div>
+      <div id="noticesList">Loading notices...</div>
+    </div>
+
+    <div id="tab-attendance" class="content-pane">
+      <div id="attendanceSummary"></div>
+      <div id="attendanceMonths">Loading attendance...</div>
+    </div>
+
+    <div id="tab-marks" class="content-pane">
+      <div id="marksList">Loading exam marks...</div>
+    </div>
+    <div id="tab-profile" class="content-pane">
+      <div id="profileDetails">Loading student profile...</div>
+    </div>
+  </div>
+</div>
 
 <script>
-// The teacher sets this once: the web-app link from the Google Apps Script deployment (see SETUP.md).
-const API = "https://script.google.com/macros/s/AKfycbz75LgmLkQvvmqZV4A1vJvweaBFuMZdMZpRdMp2c39dfRuXYSQR582xuDJk5MW3-TYT/exec";
-const CREDIT = "Md. Nurul Abrar · Lecturer (Mathematics) · App created by Abrar · Mobile: 01616397272";
+  // PASTE YOUR DEPLOYED WEB APP URL (/exec) HERE:
+  const API = "https://script.google.com/macros/s/AKfycbzhIVLWHO7vMbGv3Mj9b6xf-tDprFghaPWUxJAGObU2VqibDO0KY9MtjBB1unZsDIY/exec";
 
-const T = {
-  en: { board:"Class board", all:"All", HOMEWORK:"Homework", NOTICE:"Notice", FOLLOWUP:"Follow-up", MESSAGE:"Message", due:"Due", by:"Posted by", teacher:"Teacher", captain:"Class captain",
-    none:"Nothing here yet.", done:"Mark as done", undone:"Done ✓", offline:"No internet. Showing the last saved list.", loading:"Loading…",
-    roll:"Roll", cls:"Class", student:"Student", teacherL:"Teacher", mobile:"Guardian mobile number", loginId:"Login id or mobile", pw:"Password", login:"Log in", logout:"Log out",
-    chooseClass:"Choose your class", newPost:"Post to the class", kind:"Type", subject:"Subject", ttl:"Title", details:"Details", dueDate:"Due date (homework)", to:"Only for these roll numbers (leave empty for everyone)",
-    send:"Post", sent:"Posted ✓", del:"Delete", sure:"Delete this post?", needTitle:"Write a title.", board_t:"Board", att:"Attendance", private:"Only for you",
-    attendance:"Attendance", present:"Present", absent:"Absent", leave:"Leave", days:"working days", fine:"Fine", thisMonth:"This month", total:"Total", noAtt:"Attendance has not been published yet.",
-    alert:"Absent 3 or more days in a row", absentOn:"Absent on", myLogin:"My login", newId:"New login id", mob:"Mobile", oldPw:"Old password", newPw:"New password (6+ characters)", save:"Save", saved:"Saved ✓", today:"today", tomorrow:"tomorrow", overdue:"overdue", minAgo:" min ago", hAgo:" h ago", taka:"Tk", collegeTitle:"Ispahani Public School & College", classSecTitle:"Class: XI - XII · Section : B (EV)", prevMonthFine:"Previous month(s) fine", thisMonthFine:"This month fine", extraFineLabel:"Additional / Extra fine", totalPayableFine:"Total payable fine", markAttTab:"Mark Attendance", markAllP:"Mark All Present", saveAtt:"Save & Publish Attendance", attSavedOk:"Attendance saved & published successfully!", todaySummary:"Today's Class Summary", monthSummary:"Whole Month Class Summary", unmarked:"Unmarked", absentToday:"Absent students today", postBtnTeacher:"✏ ＋ Post to class (Notice / Homework)", postBtnCaptain:"✏ ＋ Post Homework or Notice", closeForm:"✕ Close form", selectMonth:"Select month", cancel:"Cancel", punishTab:"⚖ Punishments / Fines", punishTitle:"Add Special Punishment / Fine", punishSub:"Add manual fines with cause notes (for bunking class, disobedience, etc.) that sync to the student portal.", bunkChip:"Bunked class", disobeyChip:"Disobedience", lateChip:"Late arrival", dressChip:"Dress code", needRollAmt:"Please write roll number and fine amount.", addFineBtn:"Add Fine / Punishment", extraFine:"Extra / Manual fine", extraFineList:"Extra / Manual fines", cause:"Cause / Note", attFine:"Absence fine", grandTotal:"Grand total fine", offDay:"Off", holiday:"Holiday / Weekend" },
-  bn: { board:"ক্লাস বোর্ড", all:"সব", HOMEWORK:"বাড়ির কাজ", NOTICE:"নোটিশ", FOLLOWUP:"ফলো-আপ", MESSAGE:"বার্তা", due:"জমার তারিখ", by:"পোস্ট করেছেন", teacher:"শিক্ষক", captain:"ক্লাস ক্যাপ্টেন",
-    none:"এখনো কিছু নেই।", done:"করা হয়েছে", undone:"করা হয়েছে ✓", offline:"ইন্টারনেট নেই। সর্বশেষ সংরক্ষিত তালিকা দেখানো হচ্ছে।", loading:"লোড হচ্ছে…",
-    roll:"রোল", cls:"ক্লাস", student:"ছাত্র/অভিভাবক", teacherL:"শিক্ষক", mobile:"অভিভাবকের মোবাইল নম্বর", loginId:"লগইন আইডি বা মোবাইল", pw:"পাসওয়ার্ড", login:"লগইন", logout:"লগআউট",
-    chooseClass:"আপনার ক্লাস বাছুন", newPost:"ক্লাসে পোস্ট করুন", kind:"ধরন", subject:"বিষয়", ttl:"শিরোনাম", details:"বিস্তারিত", dueDate:"জমার তারিখ (বাড়ির কাজ)", to:"শুধু এই রোল নম্বরের জন্য (সবার জন্য হলে খালি রাখুন)",
-    send:"পোস্ট", sent:"পোস্ট হয়েছে ✓", del:"মুছুন", sure:"পোস্টটি মুছবেন?", needTitle:"শিরোনাম লিখুন।", board_t:"বোর্ড", att:"হাজিরা", private:"শুধু আপনার জন্য",
-    attendance:"হাজিরা", present:"উপস্থিত", absent:"অনুপস্থিত", leave:"ছুটি", days:"কার্যদিবস", fine:"জরিমানা", thisMonth:"এই মাস", total:"মোট", noAtt:"হাজিরা এখনো প্রকাশ করা হয়নি।",
-    alert:"টানা ৩ দিন বা বেশি অনুপস্থিত", absentOn:"অনুপস্থিত", myLogin:"আমার লগইন", newId:"নতুন লগইন আইডি", mob:"মোবাইল", oldPw:"পুরনো পাসওয়ার্ড", newPw:"নতুন পাসওয়ার্ড (৬+ অক্ষর)", save:"সংরক্ষণ", saved:"সংরক্ষিত ✓", today:"আজ", tomorrow:"আগামীকাল", overdue:"সময় পেরিয়েছে", minAgo:" মিনিট আগে", hAgo:" ঘণ্টা আগে", taka:"টাকা", collegeTitle:"ইস্পাহানী স্কুল অ্যান্ড কলেজ", classSecTitle:"শ্রেণি: একাদশ-দ্বাদশ · শাখা: বি (ইভি)", prevMonthFine:"পূর্ববর্তী মাসের জরিমানা", thisMonthFine:"এই মাসের জরিমানা", extraFineLabel:"অতিরিক্ত / বিশেষ জরিমানা", totalPayableFine:"সর্বমোট প্রদেয় জরিমানা", markAttTab:"হাজিরা নিন", markAllP:"সবাই উপস্থিত", saveAtt:"হাজিরা সংরক্ষণ ও প্রকাশ", attSavedOk:"হাজিরা সংরক্ষিত ও প্রকাশিত হয়েছে!", todaySummary:"আজকের ক্লাসের সারসংক্ষেপ", monthSummary:"এই মাসের ক্লাসের সারসংক্ষেপ", unmarked:"অচিহ্নিত", absentToday:"আজকের অনুপস্থিত শিক্ষার্থী", postBtnTeacher:"✏ ＋ ক্লাসে নতুন পোস্ট (নোটিশ / বাড়ির কাজ)", postBtnCaptain:"✏ ＋ বাড়ির কাজ বা নোটিশ দিন", closeForm:"✕ ফর্ম বন্ধ করুন", selectMonth:"মাস নির্বাচন করুন", cancel:"বাতিল", punishTab:"⚖ বিশেষ শাস্তি ও জরিমানা", punishTitle:"বিশেষ শাস্তি / জরিমানা যোগ করুন", punishSub:"ক্লাস পালানো, অবাধ্যতা ইত্যাদির জন্য কারণসহ জরিমানা যোগ করুন যা স্টুডেন্ট পোর্টালে দেখাবে।", bunkChip:"ক্লাস পালানো", disobeyChip:"অবাধ্যতা", lateChip:"দেরিতে আসা", dressChip:"পোশাক ত্রুটি", needRollAmt:"রোল নম্বর এবং টাকার পরিমাণ লিখুন।", addFineBtn:"শাস্তি / জরিমানা যোগ", extraFine:"অতিরিক্ত জরিমানা", extraFineList:"অতিরিক্ত / কারণভিত্তিক জরিমানা", cause:"কারণ / নোট", attFine:"অনুপস্থিতির জরিমানা", grandTotal:"সর্বমোট জরিমানা", offDay:"ছুটি", holiday:"ছুটি / সাপ্তাহিক বন্ধ" }
-};
-let lang = localStorage.getItem("board_lang") || "en";
-const t = k => (T[lang] && T[lang][k]) || T.en[k] || k;
-const nowDate = () => window.__NOW ? new Date(window.__NOW) : new Date();   // (a test can set __NOW)
+  let session = { s: "", r: 0, tk: "", name: "", captain: false };
 
-let auth = null, feed = null, att = null, tab = "board", kindTab = "ALL", subject = "", sections = JSON.parse(localStorage.getItem("board_sections") || '["XI-B"]'), loginRole = "S", showCompose = false, selectedMonthKey = null;
+  window.onload = function() { loadSections(); };
 
-function h(tag, props, ...kids) {
-  const e = document.createElement(tag);
-  for (const k in (props || {})) { const v = props[k]; if (k === "class") e.className = v; else if (k.startsWith("on")) e[k] = v; else if (k === "value") e.value = v; else if (v !== false && v != null) e.setAttribute(k, v); }
-  kids.flat().forEach(c => { if (c != null && c !== false) e.append(c); });
-  return e;
-}
-const $ = id => document.getElementById(id);
-function linkify(parent, text) {
-  const re = /(https?:\/\/[^\s<>"']+)/g; let last = 0, m;
-  while ((m = re.exec(text))) { if (m.index > last) parent.append(text.slice(last, m.index)); parent.append(h("a", { href: m[1], target: "_blank", rel: "noopener noreferrer" }, m[1])); last = m.index + m[1].length; }
-  if (last < text.length) parent.append(text.slice(last));
-}
-const key = () => auth ? (auth.role === "T" ? "t_" + auth.u : "s_" + auth.s + "_" + auth.r) : "";
-const save = () => localStorage.setItem("board_auth", JSON.stringify(auth));
-const dayNum = s => { const d = new Date(s + "T00:00:00"), n = nowDate(); n.setHours(0, 0, 0, 0); return Math.round((d - n) / 86400000); };
-const fdate = s => new Date(s + "T00:00:00").toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", { day: "numeric", month: "short" });
-function ago(s) { const d = new Date(s), m = Math.max(0, Math.round((nowDate() - d) / 60000)); return m < 60 ? m + t("minAgo") : m < 1440 ? Math.round(m / 60) + t("hAgo") : d.toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", { day: "numeric", month: "short" }); }
-
-// ------------------------------------------------------------------ network ----
-async function api(url, opt) {
-  if (url.includes("PASTE_YOUR_APPS_SCRIPT_URL_HERE")) throw new Error("Server URL not configured in index.html");
-  const r = await fetch(url, opt);
-  let j;
-  try { j = await r.json(); } catch (err) { throw new Error("Server error " + r.status); }
-  if (!j.ok) throw new Error(j.error || "Server error");
-  return j;
-}
-const rawPost = obj => api(API, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(obj) });
-const authParams = () => auth.role === "T" ? { u: auth.u, tk: auth.tk } : { s: auth.s, r: auth.r, tk: auth.tk };
-const post = obj => rawPost(Object.assign(authParams(), obj));
-const get = action => api(API + "?" + new URLSearchParams(Object.assign({ action }, authParams())).toString());
-
-async function loadAll() {
-  if (!auth) { render(); return; }
-  setMsg(t("loading"), "note");
-  try {
-    feed = await get("feed"); localStorage.setItem("board_cache_" + key(), JSON.stringify(feed));
-    if (auth.role === "S") { try { att = await get("attendanceMine"); localStorage.setItem("board_att_" + key(), JSON.stringify(att)); } catch (e) { att = null; } }
-    if (auth.role === "T") { try { await loadExtraFines(); } catch (e) {} }
-    setMsg("", "");
-  } catch (e) {
-    if (/log in|valid|Unknown/.test(String(e.message))) { logout(); setMsg(String(e.message), "error"); return; }
-    try { feed = JSON.parse(localStorage.getItem("board_cache_" + key()) || "null"); att = JSON.parse(localStorage.getItem("board_att_" + key()) || "null"); } catch (x) {}
-    setMsg(feed ? t("offline") : String(e.message || "No internet"), feed ? "note" : "error");
+  async function apiCall(params, postData = null) {
+    let url = API;
+    if (params) {
+      const q = new URLSearchParams(params).toString();
+      url += (url.includes('?') ? '&' : '?') + q;
+    }
+    const opts = postData ? { method: 'POST', body: JSON.stringify(postData) } : {};
+    const res = await fetch(url, opts);
+    return await res.json();
   }
-  render();
-}
-function setMsg(text, cls) { const m = $("msg"); m.textContent = text; m.className = cls || ""; }
-function logout() { localStorage.removeItem("board_auth"); auth = null; feed = null; att = null; render(); }
 
-// ------------------------------------------------------------------ screens ----
-function render() {
-  document.documentElement.lang = lang;
-  $("title").textContent = t("collegeTitle"); $("lang").textContent = lang === "en" ? "বাংলা" : "English";
-  $("credit").textContent = CREDIT; $("out").textContent = t("logout"); $("out").hidden = !auth; $("refresh").hidden = !auth;
-  const userTag = auth && feed ? (auth.role === "T" ? t("teacher") : feed.name || (t("roll") + " " + feed.roll)) : "";
-  $("sub").textContent = [t("classSecTitle"), userTag].filter(Boolean).join(" · ");
-  const v = $("view"); v.textContent = "";
-  if (!auth) { v.append(loginView()); return; }
-  if (!feed) return;
-  const tabs = [["board", t("board_t")]].concat(auth.role === "S" ? [["att", t("att")]] : [["markAtt", t("markAttTab")], ["punish", t("punishTab")], ["me", t("myLogin")]]);
-  v.append(h("div", { class: "tabs" }, tabs.map(([k, l]) => h("button", { class: "chip" + (tab === k ? " on" : ""), onclick: () => { tab = k; render(); } }, l))));
-  if (tab === "board") v.append(boardView()); else if (tab === "att") v.append(attView()); else if (tab === "markAtt") v.append(markAttView()); else if (tab === "punish") v.append(punishView()); else v.append(profileView());
-}
-
-function loginView() {
-  const err = h("div", { class: "error", id: "login-err" });
-  const secList = sections.length ? sections : ["XI-B"];
-  const defSec = secList.find(s => /B/i.test(s)) || secList[0];
-  const sel = h("select", { id: "s-class", style: "font-weight:600;" }, secList.map(s => h("option", { value: s, selected: s === defSec }, s === "XI-B" ? "Class XI - XII · Section B (EV)" : s)));
-  const roll = h("input", { id: "s-roll", type: "number", inputmode: "numeric" }), phone = h("input", { id: "s-phone", type: "tel", inputmode: "tel" });
-  const uid = h("input", { id: "t-user", autocomplete: "username" }), pw = h("input", { id: "t-pw", type: "password", autocomplete: "current-password" });
-  const go = h("button", { class: "btn", id: "login-btn", onclick: async () => {
-    err.textContent = ""; go.disabled = true;
+  async function loadSections() {
     try {
-      if (loginRole === "S") { const j = await rawPost({ action: "slogin", s: sel.value, r: Number(roll.value), phone: phone.value }); auth = { role: "S", s: sel.value, r: Number(roll.value), tk: j.tk }; }
-      else { const j = await rawPost({ action: "login", u: uid.value, pw: pw.value }); auth = { role: "T", u: j.teacher.loginId, tk: j.tk }; }
-      save(); tab = "board"; await loadAll();
-    } catch (e) { err.textContent = String(e.message || e); }
-    go.disabled = false;
-  } }, t("login"));
-  const who = h("div", { class: "tabs" }, [["S", t("student")], ["T", t("teacherL")]].map(([k, l]) => h("button", { class: "chip" + (loginRole === k ? " on" : ""), onclick: () => { loginRole = k; render(); } }, l)));
-  const form = loginRole === "S"
-    ? [h("label", {}, t("cls")), sel, h("label", {}, t("roll")), roll, h("label", {}, t("mobile")), phone]
-    : [h("label", {}, t("loginId")), uid, h("label", {}, t("pw")), pw];
-  return h("div", { class: "card" }, who, form, h("div", { class: "actions" }, go), err);
-}
-
-function boardView() {
-  const items = feed.items, mode = feed.mode, wrap = h("div");
-
-  // 1. If Teacher: show Today's Class Summary & Whole Month Summary
-  if (mode === "T" && feed.summary) {
-    const sum = feed.summary;
-    if (sum.today) {
-      const td = sum.today;
-      const tdCard = h("div", { class: "card" });
-      tdCard.append(h("div", { class: "title", style: "display:flex; justify-content:space-between; align-items:center;" },
-        h("span", {}, "📅 " + t("todaySummary")),
-        h("span", { class: "subj", style: "font-weight:normal;" }, fdate(td.date))
-      ));
-      tdCard.append(h("div", { class: "stats" },
-        h("div", {}, h("b", { class: "good" }, td.present), h("span", {}, t("present"))),
-        h("div", {}, h("b", { class: td.absent ? "bad" : "" }, td.absent), h("span", {}, t("absent"))),
-        h("div", {}, h("b", {}, td.leave), h("span", {}, t("leave"))),
-        h("div", {}, h("b", {}, td.total), h("span", {}, t("student"))),
-        td.unmarked > 0 && h("div", {}, h("b", { style: "color:var(--amber);" }, td.unmarked), h("span", {}, t("unmarked")))
-      ));
-      if (td.absentees && td.absentees.length) {
-        tdCard.append(h("div", { class: "meta", style: "margin-top:10px; color:var(--red);" },
-          h("b", {}, t("absentToday") + ": "),
-          td.absentees.map(x => x.r + " " + (x.n || "")).join(", ")
-        ));
+      const data = await apiCall({ action: 'sections' });
+      const sel = document.getElementById('sectionSelect');
+      sel.innerHTML = '';
+      if (data.ok && data.sections.length > 0) {
+        data.sections.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s; opt.textContent = s; sel.appendChild(opt);
+        });
+      } else {
+        sel.innerHTML = '<option value="">No sections found</option>';
       }
-      wrap.append(tdCard);
-    }
-
-    if (sum.month) {
-      const mo = sum.month;
-      const moCard = h("div", { class: "card" });
-      moCard.append(h("div", { class: "title" }, "📊 " + t("monthSummary") + " (" + new Date(mo.year, mo.monthNum - 1, 1).toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", { month: "long", year: "numeric" }) + ")"));
-      moCard.append(h("div", { class: "row", style: "margin:8px 0;" },
-        h("div", { class: "big " + (mo.pct >= 75 ? "good" : "bad") }, mo.pct + "%"),
-        h("div", { style: "font-size:13px; line-height:1.4;" },
-          t("attendance") + ": " + mo.present + " " + t("present") + " / " + (mo.workingDays * (mo.totalStudents || 1)) + " " + t("days"),
-          h("br"),
-          mo.workingDays + " " + t("days") + " · " + mo.totalStudents + " " + t("student")
-        )
-      ));
-      moCard.append(h("div", { class: "stats" },
-        h("div", {}, h("b", { class: mo.absent ? "bad" : "" }, mo.absent), h("span", {}, t("absent"))),
-        h("div", {}, h("b", {}, mo.leave), h("span", {}, t("leave"))),
-        mo.totalFine > 0 && h("div", {}, h("b", { class: "bad" }, mo.totalFine + " " + t("taka")), h("span", {}, t("total") + " " + t("fine")))
-      ));
-      wrap.append(moCard);
+    } catch (e) {
+      document.getElementById('sectionSelect').innerHTML = '<option value="">Failed to load sections</option>';
     }
   }
 
-  // 2. Collapsible Post Button for Teacher and Captain
-  if (mode === "C" || mode === "T") {
-    const postToggle = h("button", {
-      class: "btn " + (showCompose ? "alt" : ""),
-      style: "width:100%; margin:8px 0; display:flex; align-items:center; justify-content:center; gap:8px; font-weight:600; padding:12px 16px;",
-      onclick: () => { showCompose = !showCompose; render(); }
-    }, showCompose ? t("closeForm") : (mode === "T" ? t("postBtnTeacher") : t("postBtnCaptain")));
-    wrap.append(postToggle);
-    if (showCompose) wrap.append(composeView());
-  }
+  async function doLogin() {
+    const s = document.getElementById('sectionSelect').value;
+    const r = document.getElementById('rollInput').value;
+    const phone = document.getElementById('phoneInput').value;
+    const errBox = document.getElementById('loginError');
+    const loading = document.getElementById('loginLoading');
+    const btn = document.getElementById('loginBtn');
 
-  // 3. Notice Board header & filters
-  wrap.append(h("div", { class: "title", style: "margin:14px 0 6px;" }, "📌 " + t("board_t")));
-  const kinds = ["ALL", "HOMEWORK", "FOLLOWUP", "NOTICE", "MESSAGE"];
-  wrap.append(h("div", { class: "chips" }, kinds.map(k => h("button", { class: "chip" + (kindTab === k ? " on" : ""), onclick: () => { kindTab = k; render(); } }, k === "ALL" ? t("all") : t(k)))));
-  const subs = Array.from(new Set(items.map(i => i.subject).filter(Boolean)));
-  if (subs.length) wrap.append(h("div", { class: "chips" }, [""].concat(subs).map(s => h("button", { class: "chip" + (subject === s ? " on" : ""), onclick: () => { subject = s; render(); } }, s || t("all")))));
-  const shown = items.filter(i => (kindTab === "ALL" || i.kind === kindTab) && (!subject || i.subject === subject));
-  if (!shown.length) wrap.append(h("div", { class: "empty" }, t("none")));
-  shown.forEach(i => wrap.append(noticeCard(i)));
-  return wrap;
-}
+    errBox.style.display = 'none';
+    if (!s || !r || !phone) {
+      errBox.textContent = 'Please fill in class, roll number, and mobile number.';
+      errBox.style.display = 'block';
+      return;
+    }
 
-function noticeCard(i) {
-  const dk = "board_done_" + key() + "_" + i.id, done = localStorage.getItem(dk) === "1";
-  const c = h("div", { class: "card" + (done && i.kind === "HOMEWORK" ? " done" : "") });
-  c.append(h("div", { class: "row" }, h("span", { class: "badge " + i.kind }, t(i.kind)), i.subject && h("span", { class: "subj" }, i.subject), i.to && i.to.length && feed.mode === "S" && h("span", { class: "subj" }, "🔒 " + t("private"))));
-  c.append(h("div", { class: "title" }, i.title));
-  if (i.body) { const b = h("div", { class: "body" }); linkify(b, i.body); c.append(b); }
-  const meta = h("div", { class: "meta" });
-  if (i.due) { const n = dayNum(i.due); meta.append(h("span", { class: "due" + (n < 0 ? " late" : n <= 1 ? " soon" : "") }, t("due") + ": " + fdate(i.due) + (n < 0 ? " (" + t("overdue") + ")" : n === 0 ? " (" + t("today") + ")" : n === 1 ? " (" + t("tomorrow") + ")" : ""))); }
-  meta.append(h("span", {}, t("by") + " " + (i.role === "T" ? t("teacher") : i.author + " (" + t("captain") + ")")), h("span", {}, ago(i.created)));
-  if (i.to && i.to.length && feed.mode === "T") meta.append(h("span", {}, "→ " + i.to.join(", ")));
-  c.append(meta);
-  const acts = h("div", { class: "actions" });
-  if (i.kind === "HOMEWORK" && feed.mode === "S") acts.append(h("button", { class: "btn " + (done ? "" : "alt"), onclick: () => { done ? localStorage.removeItem(dk) : localStorage.setItem(dk, "1"); render(); } }, done ? t("undone") : t("done")));
-  if (feed.mode === "T" || (feed.mode === "C" && i.authorRoll === feed.roll)) acts.append(h("button", { class: "btn red", onclick: async () => { if (!confirm(t("sure"))) return; await post({ action: "delete", id: i.id }); loadAll(); } }, t("del")));
-  if (acts.children.length) c.append(acts);
-  return c;
-}
+    loading.style.display = 'block';
+    btn.disabled = true;
 
-function composeView() {
-  const teacher = feed.mode === "T";
-  const kind = h("select", { id: "c-kind" }, (teacher ? ["HOMEWORK", "NOTICE", "FOLLOWUP", "MESSAGE"] : ["HOMEWORK", "NOTICE", "FOLLOWUP"]).map(k => h("option", { value: k }, t(k))));
-  const subj = h("input", { id: "c-subject", maxlength: 40 }), title = h("input", { id: "c-title", maxlength: 140 }), body = h("textarea", { id: "c-body", maxlength: 2000 });
-  const due = h("input", { id: "c-due", type: "date" }), to = teacher ? h("input", { id: "c-to", placeholder: "201, 205" }) : null;
-  const status = h("div", { class: "note", id: "c-status" });
-  const cancelBtn = h("button", { class: "btn alt", type: "button", onclick: () => { showCompose = false; render(); } }, t("cancel"));
-  const send = h("button", { class: "btn", id: "c-send", onclick: async () => {
-    if (!title.value.trim()) { status.textContent = t("needTitle"); return; }
-    send.disabled = true;
     try {
-      await post({ action: "notice", kind: kind.value, subject: subj.value, title: title.value, body: body.value, due: kind.value === "HOMEWORK" ? due.value : "", to: to ? to.value.split(/[ ,]+/).map(Number).filter(n => n > 0) : [] });
-      status.textContent = t("sent");
-      showCompose = false;
-      await loadAll();
-    } catch (e) { status.textContent = String(e.message || e); }
-    send.disabled = false;
-  } }, t("send"));
-  return h("div", { class: "card", style: "border:1px solid var(--p); animation: fadeIn .2s;" },
-    h("div", { class: "row", style: "justify-content:space-between; margin-bottom:8px;" },
-      h("div", { class: "title", style: "margin:0;" }, t("newPost")),
-      h("button", { class: "pill", style: "background:#eee;color:#333;font-size:12px;", onclick: () => { showCompose = false; render(); } }, "✕")
-    ),
-    h("label", {}, t("kind")), kind, h("label", {}, t("subject")), subj, h("label", {}, t("ttl")), title, h("label", {}, t("details")), body,
-    h("label", {}, t("dueDate")), due, to && [h("label", {}, t("to")), to],
-    h("div", { class: "actions", style: "margin-top:12px; gap:8px;" }, send, cancelBtn), status);
-}
-
-// ------------------------------------------------------------------ attendance and fine (worked out here from the published marks) ----
-const WEEKENDS = { FRI_SAT: [5, 6], SAT_SUN: [6, 0], SUN: [0], FRI: [5] };
-function analyse(a) {
-  const info = a.info || {}, hol = new Set(info.holidays || []), wk = WEEKENDS[info.weekend] || [5, 6], rate = Number(info.fine) || 50, today = nowDate();
-  const pad = n => String(n).padStart(2, "0"), all = [];
-  const months = a.months.map(m => {
-    const [y, mo] = m.month.split("-").map(Number), days = new Date(y, mo, 0).getDate();
-    let P = 0, A = 0, L = 0, last = 0; const absentDays = [];
-    const daysList = [];
-    for (let d = 1; d <= days; d++) {
-      const c = (m.marks[d - 1] || " ");
-      const dtStr = y + "-" + pad(mo) + "-" + pad(d);
-      const wd = new Date(y, mo - 1, d).getDay();
-      const isOff = wk.includes(wd) || hol.has(dtStr);
-      // Holidays and weekends: do not count P or A even if pressed wrongly!
-      if (!isOff) {
-        if (c === "P") P++;
-        else if (c === "A") { A++; absentDays.push(d); }
-        else if (c === "L") L++;
-        if (c !== " ") { last = d; all.push(c); }
-      }
-      daysList.push({ d, wd, mark: c, isOff, isHoliday: hol.has(dtStr), isWeekend: wk.includes(wd) });
-    }
-    const ended = new Date(y, mo, 0, 23, 59) < today;
-    const isCurrentMonth = today.getFullYear() === y && (today.getMonth() + 1) === mo;
-    const upTo = ended ? days : (isCurrentMonth ? Math.max(last, today.getDate()) : last);
-    let worked = 0;
-    for (let d = 1; d <= upTo; d++) {
-      const wd = new Date(y, mo - 1, d).getDay();
-      const dtStr = y + "-" + pad(mo) + "-" + pad(d);
-      if (!wk.includes(wd) && !hol.has(dtStr)) worked++;
-    }
-    return { month: m.month, y, mo, P, A, L, worked, pct: worked ? Math.min(100, Math.floor(P * 100 / worked)) : 0, absentDays, fine: A * rate, daysList };
-  });
-  const P = months.reduce((s, m) => s + m.P, 0), A = months.reduce((s, m) => s + m.A, 0), L = months.reduce((s, m) => s + m.L, 0), worked = months.reduce((s, m) => s + m.worked, 0);
-  let streak = 0; for (let i = all.length - 1; i >= 0; i--) { if (all[i] === "A") streak++; else break; }
-  const cur = months.length ? months[months.length - 1] : null;
-  const thisMonthFine = cur ? cur.fine : 0;
-  const prevMonthsFine = months.slice(0, -1).reduce((s, m) => s + m.fine, 0);
-  const extraFines = a.extraFines || [];
-  const extraTotal = extraFines.reduce((s, x) => s + (Number(x.amount) || 0), 0);
-  const grandTotalFine = thisMonthFine + prevMonthsFine + extraTotal;
-  return { months, P, A, L, worked, pct: worked ? Math.min(100, Math.floor(P * 100 / worked)) : 0, fine: A * rate, thisFine: thisMonthFine, prevFine: prevMonthsFine, rate, streak, extraFines, extraTotal, grandFine: grandTotalFine };
-}
-
-function attView() {
-  if (!att || !att.months.length) return h("div", { class: "empty" }, t("noAtt"));
-  const r = analyse(att), wrap = h("div");
-
-  // Deduplicate months in case duplicate records exist
-  const uniqueMonthsMap = {};
-  r.months.forEach(m => {
-    uniqueMonthsMap[m.month] = m;
-  });
-  const uniqueMonths = Object.keys(uniqueMonthsMap).sort().map(k => uniqueMonthsMap[k]);
-  if (!uniqueMonths.length) return h("div", { class: "empty" }, t("noAtt"));
-
-  if (!selectedMonthKey || !uniqueMonthsMap[selectedMonthKey]) {
-    selectedMonthKey = uniqueMonths[uniqueMonths.length - 1].month;
-  }
-  
-  // Summary card with 4-box fine grid
-  const fineGrid = h("div", { class: "fine-grid" },
-    h("div", { class: "fine-box" },
-      h("b", { class: r.thisFine ? "bad" : "good", id: "fine-month" }, r.thisFine + " " + t("taka")),
-      h("span", {}, t("thisMonthFine"))
-    ),
-    h("div", { class: "fine-box" },
-      h("b", { class: r.prevFine ? "bad" : "good", id: "fine-prev" }, r.prevFine + " " + t("taka")),
-      h("span", {}, t("prevMonthFine"))
-    ),
-    h("div", { class: "fine-box" },
-      h("b", { class: r.extraTotal ? "bad" : "good", id: "fine-extra" }, r.extraTotal + " " + t("taka")),
-      h("span", {}, t("extraFineLabel"))
-    ),
-    h("div", { class: "fine-box total" },
-      h("b", { class: "bad", style: "font-size:20px;", id: "fine-grand" }, r.grandFine + " " + t("taka")),
-      h("span", { style: "font-weight:700; color:var(--red);" }, t("totalPayableFine"))
-    )
-  );
-
-  wrap.append(h("div", { class: "card" + (r.streak >= 3 ? " alert" : "") },
-    r.streak >= 3 && h("div", { class: "bad title", id: "att-alert" }, "🔴 ⚠ " + t("alert") + " (" + r.streak + ")"),
-    h("div", { class: "row" }, h("div", { class: "big " + (r.pct >= 75 ? "good" : "bad"), id: "att-pct" }, r.pct + "%"), h("div", {}, t("attendance"), h("br"), r.P + " / " + r.worked + " " + t("days"))),
-    h("div", { class: "stats" }, h("div", {}, h("b", {}, r.P), h("span", {}, t("present"))), h("div", {}, h("b", { class: r.A ? "bad" : "" }, r.A), h("span", {}, t("absent"))), h("div", {}, h("b", {}, r.L), h("span", {}, t("leave")))),
-    fineGrid
-  ));
-
-  // If student has manual/extra fines with cause notes (e.g. disobedience, bunked class)
-  if (r.extraFines && r.extraFines.length) {
-    const efCard = h("div", { class: "card alert" }, h("div", { class: "title" }, "⚠ " + t("extraFineList")));
-    r.extraFines.forEach(ef => {
-      efCard.append(h("div", { class: "extra-fine-row" },
-        h("div", {}, h("b", {}, ef.cause || t("extraFine")), h("div", { class: "meta" }, ef.date ? fdate(ef.date) : "")),
-        h("div", { class: "bad", style: "font-weight:700;font-size:15px;" }, ef.amount + " " + t("taka"))
-      ));
-    });
-    wrap.append(efCard);
-  }
-
-  // Calendar legend
-  wrap.append(h("div", { class: "card", style: "padding:10px 14px;" },
-    h("div", { class: "row", style: "font-size:12px;gap:12px;" },
-      h("span", { class: "row", style: "gap:4px;" }, h("span", { class: "cal-tag P" }, "P"), " " + t("present")),
-      h("span", { class: "row", style: "gap:4px;" }, h("span", { class: "cal-tag A" }, "A"), " " + t("absent")),
-      h("span", { class: "row", style: "gap:4px;" }, h("span", { class: "cal-tag L" }, "L"), " " + t("leave")),
-      h("span", { class: "row", style: "gap:4px;" }, h("span", { class: "cal-tag off" }, "Off"), " " + t("holiday"))
-    )
-  ));
-
-  // Month dropdown selector & single month calendar table
-  const dayNames = lang === "bn" ? ["রবি", "সোম", "মঙ্গল", "বুধ", "বৃহঃ", "শুক্র", "শনি"] : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const m = uniqueMonthsMap[selectedMonthKey] || uniqueMonths[uniqueMonths.length - 1];
-
-  const mCard = h("div", { class: "card" });
-  
-  // Dropdown selector header
-  const sel = h("select", {
-    id: "att-month-select",
-    style: "font-weight:600; font-size:15px; padding:8px 12px; margin-bottom:10px; border:1px solid var(--p); border-radius:10px; background:#fff; cursor:pointer;",
-    onchange: (e) => { selectedMonthKey = e.target.value; render(); }
-  }, uniqueMonths.slice().reverse().map(opt =>
-    h("option", { value: opt.month, selected: opt.month === selectedMonthKey },
-      new Date(opt.y, opt.mo - 1, 1).toLocaleDateString(lang === "bn" ? "bn-BD" : "en-GB", { month: "long", year: "numeric" })
-    )
-  ));
-
-  mCard.append(h("div", { style: "display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;" },
-    h("div", { class: "title", style: "margin:0;" }, "🗓 " + t("attendance")),
-    sel
-  ));
-  mCard.append(h("div", { class: "meta", style: "margin:8px 0 10px;" },
-    m.P + " / " + m.worked + " " + t("days") + " (" + m.pct + "%) · " + t("absent") + " " + m.A + " · " + t("leave") + " " + m.L + (r.rate ? " · " + t("fine") + " " + m.fine + " " + t("taka") : "")
-  ));
-
-  const grid = h("div", { class: "cal-grid" });
-  dayNames.forEach(dn => grid.append(h("div", { class: "cal-head" }, dn)));
-
-  const firstWd = new Date(m.y, m.mo - 1, 1).getDay();
-  for (let k = 0; k < firstWd; k++) grid.append(h("div", { class: "cal-cell empty" }));
-
-  m.daysList.forEach(item => {
-    let markClass = "empty";
-    let markLabel = "";
-    if (item.isOff) {
-      markClass = "off";
-      markLabel = t("offDay");
-    } else if (item.mark === "P") {
-      markClass = "P";
-      markLabel = "P";
-    } else if (item.mark === "A") {
-      markClass = "A";
-      markLabel = "A";
-    } else if (item.mark === "L") {
-      markClass = "L";
-      markLabel = "L";
-    }
-    grid.append(h("div", { class: "cal-cell " + markClass },
-      h("span", { class: "cal-d" }, item.d),
-      markLabel ? h("span", { class: "cal-m" }, markLabel) : h("span", { class: "cal-dot" }, "")
-    ));
-  });
-
-  mCard.append(grid);
-  if (m.absentDays && m.absentDays.length) {
-    mCard.append(h("div", { class: "meta", style: "margin-top:10px;" }, t("absentOn") + ": " + m.absentDays.join(", ")));
-  }
-  wrap.append(mCard);
-
-  return wrap;
-}
-
-
-let teacherExtraFines = [];
-async function loadExtraFines() {
-  try {
-    const res = await get("extraFines");
-    if (res.ok) teacherExtraFines = res.extraFines || [];
-  } catch (e) {}
-}
-
-function punishView() {
-  const wrap = h("div");
-  const card = h("div", { class: "card" });
-  card.append(h("div", { class: "title" }, "⚖ " + t("punishTitle")));
-  card.append(h("div", { class: "meta", style: "margin-bottom:12px;" }, t("punishSub")));
-  
-  const rollInp = h("input", { type: "number", placeholder: "e.g. 201", id: "pf-roll" });
-  const amtInp = h("input", { type: "number", value: "50", id: "pf-amt" });
-  const causeInp = h("input", { type: "text", placeholder: "e.g. Bunked class / Disobedience", id: "pf-cause" });
-  const st = h("div", { class: "note", id: "pf-status" });
-  
-  const quickReasons = [
-    t("bunkChip"), t("disobeyChip"), t("lateChip"), t("dressChip")
-  ];
-  const chipsRow = h("div", { class: "chips", style: "margin:6px 0;" },
-    quickReasons.map(r => h("button", { class: "chip", type: "button", onclick: () => { causeInp.value = r; } }, r))
-  );
-
-  const addBtn = h("button", { class: "btn red", onclick: async () => {
-    const r = Number(rollInp.value), amt = Number(amtInp.value), c = causeInp.value.trim();
-    if (!r || !amt) { st.textContent = t("needRollAmt"); return; }
-    addBtn.disabled = true; st.textContent = t("loading");
-    try {
-      const res = await post({ action: "extraFine", roll: r, amount: amt, cause: c || t("bunkChip") });
+      const res = await apiCall(null, { action: 'slogin', s: s, r: Number(r), phone: phone });
       if (res.ok) {
-        teacherExtraFines = res.extraFines || [];
-        st.textContent = t("saved");
-        causeInp.value = "";
-        render();
+        session = { s: s, r: Number(r), tk: res.tk, name: res.student.name, captain: !!res.student.captain };
+        document.getElementById('studentName').textContent = res.student.name;
+        document.getElementById('studentMeta').textContent = `Section: ${s} | Roll: ${r}` + (session.captain ? ' | Class Captain' : '');
+        document.getElementById('captainBox').style.display = session.captain ? 'block' : 'none';
+        document.getElementById('loginCard').style.display = 'none';
+        document.getElementById('dashboardCard').style.display = 'block';
+        loadDashboard();
+      } else {
+        errBox.textContent = res.error || 'Login failed.';
+        errBox.style.display = 'block';
       }
-    } catch (e) { st.textContent = String(e.message || e); }
-    addBtn.disabled = false;
-  } }, "＋ " + t("addFineBtn"));
-
-  card.append(
-    h("label", {}, t("roll")), rollInp,
-    h("label", {}, t("fine") + " (Tk)"), amtInp,
-    h("label", {}, t("cause")), causeInp,
-    chipsRow,
-    h("div", { class: "actions" }, addBtn),
-    st
-  );
-  wrap.append(card);
-
-  const listCard = h("div", { class: "card" });
-  listCard.append(h("div", { class: "title" }, t("extraFineList") + " (" + teacherExtraFines.length + ")"));
-  if (!teacherExtraFines.length) {
-    listCard.append(h("div", { class: "empty" }, t("none")));
-  } else {
-    teacherExtraFines.forEach((ef, idx) => {
-      const row = h("div", { class: "extra-fine-row" },
-        h("div", {},
-          h("b", {}, t("roll") + " " + ef.roll + " — " + ef.amount + " " + t("taka")),
-          h("div", { class: "meta" }, (ef.cause || "") + " · " + (ef.date || ""))
-        ),
-        h("button", { class: "btn alt red", style: "padding:4px 10px;font-size:12px;", onclick: async () => {
-          if (!confirm(t("sure"))) return;
-          try {
-            const res = await post({ action: "extraFine", subAction: "delete", index: idx });
-            if (res.ok) { teacherExtraFines = res.extraFines || []; render(); }
-          } catch (e) { alert(String(e.message || e)); }
-        } }, t("del"))
-      );
-      listCard.append(row);
-    });
+    } catch (e) {
+      errBox.textContent = 'Network error or invalid server API URL.';
+      errBox.style.display = 'block';
+    } finally {
+      loading.style.display = 'none';
+      btn.disabled = false;
+    }
   }
-  wrap.append(listCard);
-  return wrap;
-}
 
+  function logout() {
+    session = { s: "", r: 0, tk: "", name: "", captain: false };
+    document.getElementById('dashboardCard').style.display = 'none';
+    document.getElementById('loginCard').style.display = 'block';
+    document.getElementById('rollInput').value = '';
+    document.getElementById('phoneInput').value = '';
+  }
 
-let markAttDate = new Date().toISOString().slice(0, 10);
-let markAttMap = {}; // roll -> 'P' / 'A' / 'L'
-let teacherRoster = [];
-let rosterLoaded = false;
+  function switchTab(tab, el) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.content-pane').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+  }
 
-async function loadTeacherRoster() {
-  try {
-    const res = await get("roster");
+  async function loadDashboard() {
+    loadNotices();
+    loadAttendance();
+    loadMarks();
+    loadProfile();
+  }
+
+  async function postNotice() {
+    const title = document.getElementById('postTitle').value.trim();
+    if (!title) return alert('Write a title first');
+    const res = await apiCall(null, {
+      action: 'notice', s: session.s, r: session.r, tk: session.tk,
+      kind: document.getElementById('postKind').value,
+      subject: document.getElementById('postSubject').value,
+      title: title,
+      body: document.getElementById('postBody').value
+    });
     if (res.ok) {
-      teacherRoster = res.roster || [];
-      rosterLoaded = true;
-    }
-  } catch (e) {}
-}
-
-function markAttView() {
-  if (!rosterLoaded) {
-    loadTeacherRoster().then(() => render());
-  }
-  const wrap = h("div");
-  const card = h("div", { class: "card" });
-  card.append(h("div", { class: "title" }, "✍ " + t("markAttTab")));
-  card.append(h("div", { class: "meta", style: "margin-bottom:12px;" }, t("cls") + " " + (feed ? feed.section : "") + " · " + (teacherRoster.length ? teacherRoster.length + " " + t("student") : "")));
-
-  const dateInp = h("input", {
-    type: "date",
-    value: markAttDate,
-    style: "font-weight:600; margin-bottom:10px;",
-    onchange: (e) => { markAttDate = e.target.value; render(); }
-  });
-
-  const allPBtn = h("button", {
-    class: "btn alt",
-    type: "button",
-    style: "margin-bottom:12px; width:100%; font-weight:600;",
-    onclick: () => {
-      teacherRoster.forEach(s => { markAttMap[s.roll] = "P"; });
-      render();
-    }
-  }, "✔ " + t("markAllP"));
-
-  card.append(h("label", {}, t("dueDate")), dateInp, allPBtn);
-
-  const listWrap = h("div", { style: "display:flex; flex-direction:column; gap:6px;" });
-  if (!teacherRoster.length) {
-    listWrap.append(h("div", { class: "note" }, t("loading")));
-  } else {
-    teacherRoster.forEach(s => {
-      const cur = markAttMap[s.roll] || "";
-      const row = h("div", {
-        style: "display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:#fafafa; border-radius:8px; border:1px solid #eee;"
-      },
-        h("div", { style: "font-size:14px;" }, h("b", {}, s.roll), "  " + s.name),
-        h("div", { style: "display:flex; gap:4px;" },
-          ["P", "A", "L"].map(m => {
-            const isSel = cur === m;
-            const bg = isSel ? (m === "P" ? "#2e7d32" : m === "A" ? "#c62828" : "#fbc02d") : "#fff";
-            const col = isSel ? (m === "L" ? "#000" : "#fff") : "#333";
-            const bdr = isSel ? "transparent" : "#ccc";
-            return h("button", {
-              class: "pill",
-              style: "min-width:34px; padding:4px 8px; font-weight:700; background:" + bg + "; color:" + col + "; border:1px solid " + bdr + "; cursor:pointer;",
-              onclick: () => { markAttMap[s.roll] = m; render(); }
-            }, m);
-          })
-        )
-      );
-      listWrap.append(row);
-    });
+      document.getElementById('postTitle').value = '';
+      document.getElementById('postBody').value = '';
+      loadNotices();
+    } else alert(res.error || 'Failed to post');
   }
 
-  card.append(listWrap);
-
-  const st = h("div", { class: "note", id: "ma-status", style: "margin-top:10px;" });
-  const saveBtn = h("button", {
-    class: "btn",
-    style: "margin-top:14px; width:100%; font-weight:700; font-size:15px; padding:12px;",
-    onclick: async () => {
-      if (!teacherRoster.length) return;
-      saveBtn.disabled = true;
-      st.textContent = t("loading");
-      try {
-        const res = await post({ action: "markDay", date: markAttDate, marks: markAttMap });
-        if (res.ok) {
-          st.textContent = "✔ " + t("attSavedOk") + " (" + res.saved + " " + t("student") + ")";
-          await loadAll();
-        }
-      } catch (e) {
-        st.textContent = String(e.message || e);
+  async function loadNotices() {
+    const list = document.getElementById('noticesList');
+    list.innerHTML = 'Loading notices...';
+    try {
+      const res = await apiCall({ action: 'feed', s: session.s, r: session.r, tk: session.tk });
+      if (res.ok && res.items.length > 0) {
+        list.innerHTML = res.items.map(n => `
+          <div class="notice-item">
+            <div class="notice-title">${escapeHtml(n.title)} <span class="badge ${n.kind === 'HOMEWORK' ? 'badge-leave' : 'badge-present'}">${escapeHtml(n.kind)}</span></div>
+            <div class="notice-meta">${n.subject ? '<b>' + escapeHtml(n.subject) + '</b> • ' : ''}Posted by ${escapeHtml(n.author)} (${n.created.slice(0, 10)}) ${n.due ? '• Due: ' + n.due : ''}</div>
+            <div class="notice-body">${escapeHtml(n.body)}</div>
+          </div>
+        `).join('');
+      } else {
+        list.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">No notices or homework posted yet.</p>';
       }
-      saveBtn.disabled = false;
+    } catch (e) { list.innerHTML = '<p style="color: var(--danger);">Failed to load notices.</p>'; }
+  }
+
+  async function loadAttendance() {
+    const container = document.getElementById('attendanceMonths');
+    const summaryDiv = document.getElementById('attendanceSummary');
+    container.innerHTML = 'Loading attendance...';
+    try {
+      const res = await apiCall({ action: 'attendanceMine', s: session.s, r: session.r, tk: session.tk });
+      if (res.ok && res.months && res.months.length > 0) {
+        const seen = {};
+        const uniqueMonths = [];
+        res.months.forEach(m => {
+          const ym = String(m.month).slice(0, 7);
+          seen[ym] = m.marks;
+        });
+        Object.keys(seen).sort().forEach(ym => uniqueMonths.push({ month: ym, marks: seen[ym] }));
+
+        let totalP = 0, totalA = 0, totalL = 0;
+        let html = '';
+
+        uniqueMonths.forEach(m => {
+          const chars = String(m.marks || '').split('');
+          let p = 0, a = 0, l = 0;
+          let pills = '';
+          chars.forEach((ch, idx) => {
+            if (ch === 'P') { p++; totalP++; pills += `<span class="day-pill day-P" title="Day ${idx+1}: Present">${idx+1}<br>P</span>`; }
+            else if (ch === 'A') { a++; totalA++; pills += `<span class="day-pill day-A" title="Day ${idx+1}: Absent">${idx+1}<br>A</span>`; }
+            else if (ch === 'L') { l++; totalL++; pills += `<span class="day-pill day-L" title="Day ${idx+1}: Leave">${idx+1}<br>L</span>`; }
+            else { pills += `<span class="day-pill day-off" title="Day ${idx+1}: Off/Unmarked">${idx+1}</span>`; }
+          });
+
+          html += `
+            <div style="border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+              <div style="display:flex; justify-content:space-between; font-weight:600; font-size:0.9rem;">
+                <span>${m.month}</span>
+                <span style="font-size:0.8rem; color:var(--text-muted);">P: ${p} | A: ${a} | L: ${l}</span>
+              </div>
+              <div class="day-pills">${pills}</div>
+            </div>
+          `;
+        });
+
+        const working = totalP + totalA + totalL;
+        const pct = working > 0 ? Math.round((totalP / working) * 100) : 0;
+        const fineRate = (res.info && res.info.fine) ? Number(res.info.fine) : 0;
+        const totalFine = totalA * fineRate;
+
+        summaryDiv.innerHTML = `
+          <div class="stat-grid">
+            <div class="stat-box"><div class="stat-val" style="color:var(--success);">${totalP}</div><div class="stat-lbl">Present</div></div>
+            <div class="stat-box"><div class="stat-val" style="color:var(--danger);">${totalA}</div><div class="stat-lbl">Absent</div></div>
+            <div class="stat-box"><div class="stat-val">${pct}%</div><div class="stat-lbl">Rate</div></div>
+            <div class="stat-box"><div class="stat-val" style="color:var(--warning);">${totalFine}</div><div class="stat-lbl">Fine (৳)</div></div>
+          </div>
+        `;
+        container.innerHTML = html;
+      } else {
+        summaryDiv.innerHTML = '';
+        container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">No attendance records found.</p>';
+      }
+    } catch (e) { container.innerHTML = '<p style="color: var(--danger);">Failed to load attendance.</p>'; }
+  }
+
+  async function loadMarks() {
+    const marksDiv = document.getElementById('marksList');
+    marksDiv.innerHTML = 'Loading marks...';
+    try {
+      const res = await apiCall({ action: 'marksMine', s: session.s, r: session.r, tk: session.tk });
+      if (res.ok && res.marks && res.marks.length > 0) {
+        const examNames = {};
+        if (res.config && res.config.exams) res.config.exams.forEach(e => examNames[e.id] = e.name);
+        const groups = {};
+        res.marks.forEach(m => {
+          if (!groups[m.exam]) groups[m.exam] = [];
+          groups[m.exam].push(m);
+        });
+
+        let html = '';
+        for (const [examId, items] of Object.entries(groups)) {
+          html += `<h4 style="margin: 12px 0 6px; color: var(--primary);">${escapeHtml(examNames[examId] || examId)}</h4>`;
+          html += '<div class="table-container"><table><thead><tr><th>Subject</th><th>Breakdown</th><th>Total</th></tr></thead><tbody>';
+          items.forEach(item => {
+            const partsStr = Object.entries(item.parts || {}).map(([k, v]) => `${k}: ${v}`).join(', ') || '-';
+            html += `<tr><td><strong>${escapeHtml(item.subject)}</strong></td><td>${escapeHtml(partsStr)}</td><td><strong>${item.total}</strong></td></tr>`;
+          });
+          html += '</tbody></table></div>';
+        }
+        marksDiv.innerHTML = html;
+      } else {
+        marksDiv.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">No exam marks published yet.</p>';
+      }
+    } catch (e) { marksDiv.innerHTML = '<p style="color: var(--danger);">Failed to load marks.</p>'; }
+  }
+
+  async function loadProfile() {
+    const el = document.getElementById('profileDetails');
+    if (!el) return;
+    try {
+      const data = await apiCall({ action: 'profileMine', s: session.section, r: session.roll, tk: session.token });
+      if (!data.ok || !data.profile) {
+        el.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;">Full profile not synced yet. Ask your class teacher to tap "Sync Profiles to Portal".</div>';
+        return;
+      }
+      const p = data.profile;
+      const row = (lbl, val) => val ? `<div style="padding:8px 10px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:10px;"><span style="color:var(--text-muted);font-size:0.82rem;">${lbl}</span><strong style="font-size:0.86rem;text-align:right;">${escapeHtml(val)}</strong></div>` : '';
+      el.innerHTML = `
+        <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;">
+          <div style="background:var(--primary);color:#fff;padding:10px 12px;font-weight:700;font-size:0.9rem;">Personal &amp; Academic Info</div>
+          ${row('Name (English)', p.nameEn)}
+          ${row('Name (Bangla)', p.nameBn)}
+          ${row('Roll', p.roll)}
+          ${row('4th Subject', p.subj4)}
+          ${row('Blood Group', p.blood)}
+          ${row('Date of Birth', p.dob)}
+          ${row('Religion', p.religion)}
+          ${row('Contact / WhatsApp', p.contact)}
+          ${row('Email', p.email)}
+          ${row('Present Address', p.presAddr)}
+          ${row('Permanent Address', p.permAddr)}
+        </div>
+        <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;">
+          <div style="background:#0f766e;color:#fff;padding:10px 12px;font-weight:700;font-size:0.9rem;">SSC Record &amp; Activities</div>
+          ${row('SSC School', p.sscSchool)}
+          ${row('SSC Board & Year', [p.sscBoard, p.sscYear].filter(Boolean).join(' · '))}
+          ${row('SSC Roll / Reg', [p.sscRoll, p.sscReg].filter(Boolean).join(' / '))}
+          ${row('SSC GPA & Marks', [p.sscGpa ? 'GPA ' + p.sscGpa : '', p.sscMarks ? 'Marks ' + p.sscMarks : ''].filter(Boolean).join(' · '))}
+          ${row('Hobby', p.hobby)}
+          ${row('Co-curricular', p.cocurr)}
+        </div>
+        <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+          <div style="background:#4338ca;color:#fff;padding:10px 12px;font-weight:700;font-size:0.9rem;">Parents &amp; Guardian</div>
+          ${row("Father's Name", p.fName)}
+          ${row("Father's Occupation", p.fOcc)}
+          ${row("Father's Mobile", p.fMob)}
+          ${row("Mother's Name", p.mName)}
+          ${row("Mother's Occupation", p.mOcc)}
+          ${row("Mother's Mobile", p.mMob)}
+          ${row("Guardian", [p.gName, p.gRel ? '(' + p.gRel + ')' : ''].filter(Boolean).join(' '))}
+          ${row("Guardian Mobile", p.gMob)}
+        </div>
+      `;
+    } catch (e) {
+      el.innerHTML = '<div style="color:#dc2626;padding:12px;">Could not load profile.</div>';
     }
-  }, t("saveAtt"));
+  }
 
-  card.append(saveBtn, st);
-  wrap.append(card);
-  return wrap;
-}
-
-function profileView() {
-  const f = k => h("input", { id: "p-" + k, type: k.includes("Pw") ? "password" : "text" }), id = f("id"), mob = f("mob"), oldp = f("oldPw"), newp = f("newPw"), st = h("div", { class: "note", id: "p-status" });
-  return h("div", { class: "card" }, h("div", { class: "title" }, t("myLogin")), h("label", {}, t("newId")), id, h("label", {}, t("mob")), mob, h("label", {}, t("oldPw")), oldp, h("label", {}, t("newPw")), newp,
-    h("div", { class: "actions" }, h("button", { class: "btn", id: "p-save", onclick: async () => {
-      try { const j = await post({ action: "profile", newLoginId: id.value, mobile: mob.value || undefined, oldPassword: oldp.value, newPassword: newp.value });
-        auth.u = j.teacher.loginId; auth.tk = j.tk; save(); st.textContent = t("saved"); } catch (e) { st.textContent = String(e.message || e); } } }, t("save"))), st);
-}
-
-// ------------------------------------------------------------------ start ----
-$("lang").onclick = () => { lang = lang === "en" ? "bn" : "en"; localStorage.setItem("board_lang", lang); render(); };
-$("out").onclick = logout; $("refresh").onclick = loadAll;
-async function start() {
-  try { auth = JSON.parse(localStorage.getItem("board_auth") || "null"); } catch (e) { auth = null; }
-  if (auth) { try { feed = JSON.parse(localStorage.getItem("board_cache_" + key()) || "null"); att = JSON.parse(localStorage.getItem("board_att_" + key()) || "null"); } catch (e) {} }
-  render();
-  if (!auth) { try { const sc = (await api(API + "?action=sections")).sections; if (sc && sc.length) { sections = sc; localStorage.setItem("board_sections", JSON.stringify(sc)); } } catch (e) { setMsg(String(e.message || "No internet"), "error"); } render(); }
-  else loadAll();
-}
-start();
-if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, m => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[m]));
+  }
 </script>
 </body>
 </html>
