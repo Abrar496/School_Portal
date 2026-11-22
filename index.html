@@ -175,7 +175,7 @@
 
 <script>
   // PASTE YOUR DEPLOYED WEB APP URL (/exec) HERE:
-  const API = "https://script.google.com/macros/s/AKfycbz9x0s6JtRLOPlRhF6QciKK3Qj7lTho2SQxW4rUH_7nk9aotUCz0Ke0Qbd-RrjJ6sd6/exec";
+  const API = "https://script.google.com/macros/s/AKfycbzhIVLWHO7vMbGv3Mj9b6xf-tDprFghaPWUxJAGObU2VqibDO0KY9MtjBB1unZsDIY/exec";
 
   let session = { s: "", r: 0, tk: "", name: "", captain: false };
 
@@ -831,15 +831,31 @@
           });
 
           if (mIdx === 0) { curMonthA = a; curMonthLabel = m.month; }
-          html += `
-            <div style="border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
-              <div style="display:flex; justify-content:space-between; font-weight:600; font-size:0.9rem;">
-                <span>${m.month}</span>
+          const cardHtml = `
+            <div style="border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; background: #fff;">
+              <div style="display:flex; justify-content:space-between; font-weight:700; font-size:0.92rem;">
+                <span>📅 ${m.month}${mIdx === 0 ? ' (Current)' : ''}</span>
                 <span style="font-size:0.8rem; color:var(--text-muted);">P: ${p} | A: ${a} | L: ${l}</span>
               </div>
               <div class="day-pills">${pills}</div>
             </div>
           `;
+          if (mIdx === 0) {
+            html += cardHtml;
+          } else {
+            if (mIdx === 1) {
+              html += `<details style="margin-top:6px;border:1px solid var(--border);border-radius:12px;padding:8px 12px;background:#f8fafc;">
+                <summary style="cursor:pointer;font-weight:700;font-size:0.86rem;color:var(--primary);list-style:none;display:flex;justify-content:space-between;align-items:center;">
+                  <span>📂 Previous Months (${uniqueMonths.length - 1})</span>
+                  <span>▾</span>
+                </summary>
+                <div style="margin-top:10px;">`;
+            }
+            html += cardHtml;
+            if (mIdx === uniqueMonths.length - 1) {
+              html += `</div></details>`;
+            }
+          }
         });
 
         const working = totalP + totalA + totalL;
@@ -898,9 +914,13 @@
     const el = document.getElementById('profileDetails');
     if (!el) return;
     try {
-      const data = await apiCall({ action: 'profileMine', s: session.section, r: session.roll, tk: session.token });
-      if (!data.ok || !data.profile) {
-        el.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;">Full profile not synced yet. Ask your class teacher to tap "Sync Profiles to Portal".</div>';
+      const data = await apiCall({ action: 'profileMine', s: session.s, r: session.r, tk: session.tk });
+      if (!data.ok) {
+        el.innerHTML = '<div style="text-align:center;color:#dc2626;padding:20px;">Portal error: ' + escapeHtml(data.error || 'Please re-deploy Code.gs (New version)') + '</div>';
+        return;
+      }
+      if (!data.profile) {
+        el.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;">Full profile not synced yet. Open <strong>Abrar EduHub → Classes → Students</strong> and tap <strong>☁ Sync to Portal</strong>.</div>';
         return;
       }
       const p = data.profile;
