@@ -175,7 +175,7 @@
 
 <script>
   // PASTE YOUR DEPLOYED WEB APP URL (/exec) HERE:
-  const API = "https://script.google.com/macros/s/AKfycbzhIVLWHO7vMbGv3Mj9b6xf-tDprFghaPWUxJAGObU2VqibDO0KY9MtjBB1unZsDIY/exec";
+  const API = "https://script.google.com/macros/s/AKfycbz75LgmLkQvvmqZV4A1vJvweaBFuMZdMZpRdMp2c39dfRuXYSQR582xuDJk5MW3-TYT/exec";
 
   let session = { s: "", r: 0, tk: "", name: "", captain: false };
 
@@ -332,7 +332,7 @@
     el.innerHTML = 'Loading notices...';
     feedIsTeacher = true;
     try {
-      const data = await apiCall({ action: 'feed', u: session.user, tk: session.token });
+      const data = await apiCall({}, { action: 'feed', u: session.user, tk: session.token });
       cachedFeedItems = (data.ok && data.items) ? data.items : [];
       activeSubjFilter = 'ALL';
       renderCategorizedFeed();
@@ -456,9 +456,18 @@
         tAttMarksMap[st.roll] = newStr;
         return { roll: st.roll, month: ym, marks: newStr };
       });
-      const res = await apiCall({}, { action: 'attendance', u: session.user, tk: session.token, rows });
-      stat.textContent = res.ok ? `✓ Uploaded attendance for ${dateStr} (${res.saved} students saved).` : ('Error: ' + (res.error || 'Failed'));
-    } catch (e) { stat.textContent = 'Upload failed: ' + e.message; }
+      const payload = { action: 'attendance', u: session.user, tk: session.token, rows };
+      const res = await apiCall({}, payload);
+      if (res.ok) {
+        try { localStorage.removeItem('pending_att_queue'); } catch(_) {}
+        stat.textContent = `✓ Uploaded attendance for ${dateStr} (${res.saved} students saved).`;
+      } else {
+        stat.textContent = 'Error: ' + (res.error || 'Failed');
+      }
+    } catch (e) {
+      try { localStorage.setItem('pending_att_queue', JSON.stringify({ date: dateStr, rows: tAttRoster.map(st => { const arr = (String(tAttMarksMap[st.roll] || '').padEnd(31, ' ')).slice(0, 31).split(''); arr[dayIdx] = tAttDayMarks[st.roll] || ' '; return { roll: st.roll, month: ym, marks: arr.join('').replace(/\s+$/, '') }; }) })); } catch(_) {}
+      stat.textContent = 'Offline — attendance saved locally & will retry on next upload: ' + e.message;
+    }
     finally { btn.disabled = false; }
   }
 
@@ -812,7 +821,7 @@
     list.innerHTML = 'Loading notices...';
     feedIsTeacher = false;
     try {
-      const res = await apiCall({ action: 'feed', s: session.s, r: session.r, tk: session.tk });
+      const res = await apiCall({}, { action: 'feed', s: session.s, r: session.r, tk: session.tk });
       cachedFeedItems = (res.ok && res.items) ? res.items : [];
       activeSubjFilter = 'ALL';
       renderCategorizedFeed();
@@ -933,7 +942,7 @@
     const el = document.getElementById('profileDetails');
     if (!el) return;
     try {
-      const data = await apiCall({ action: 'profileMine', s: session.s, r: session.r, tk: session.tk });
+      const data = await apiCall({}, { action: 'profileMine', s: session.s, r: session.r, tk: session.tk });
       if (!data.ok) {
         el.innerHTML = '<div style="text-align:center;color:#dc2626;padding:20px;">Portal error: ' + escapeHtml(data.error || 'Please re-deploy Code.gs (New version)') + '</div>';
         return;
