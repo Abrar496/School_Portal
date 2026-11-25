@@ -74,6 +74,9 @@
     #tPrintHeader { display: block !important; }
   }
 </style>
+  <meta name="theme-color" content="#0b1220">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body>
 
@@ -86,6 +89,10 @@
       <div style="font-size:0.74rem;color:#cbd5e1;">Ispahani Public School &amp; College, Chattogram</div>
     </div>
     <a href="tel:01616397272" style="background:#0ea5e9;color:#fff;text-decoration:none;font-size:0.74rem;font-weight:700;padding:7px 10px;border-radius:8px;white-space:nowrap;">📞 01616397272</a>
+  </div>
+  <div id="installAppBar" class="no-print" style="display:none;align-items:center;justify-content:space-between;gap:10px;background:#eef2ff;border:1px solid #c7d2fe;color:#1e1b4b;padding:10px 14px;border-radius:12px;margin-bottom:14px;">
+    <div style="font-size:0.82rem;font-weight:700;">📲 Install IPSC Portal as an App on your phone</div>
+    <button type="button" id="installAppBtn" onclick="triggerPwaInstall()" style="background:var(--primary);color:#fff;border:none;padding:7px 12px;border-radius:8px;font-weight:700;font-size:0.78rem;cursor:pointer;white-space:nowrap;">Install App</button>
   </div>
   <div id="loginCard" class="card">
     <div style="display:flex;gap:8px;margin-bottom:14px;background:#f1f5f9;padding:4px;border-radius:10px;">
@@ -997,6 +1004,25 @@
   function escapeHtml(str) {
     if (!str) return '';
     return String(str).replace(/[&<>"']/g, m => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[m]));
+  }
+
+  let deferredInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    const bar = document.getElementById('installAppBar');
+    if (bar) bar.style.display = 'flex';
+  });
+  async function triggerPwaInstall() {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    const bar = document.getElementById('installAppBar');
+    if (bar) bar.style.display = 'none';
+  }
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
   }
 </script>
 </body>
