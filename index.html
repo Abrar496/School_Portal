@@ -341,6 +341,7 @@
     try {
       const data = await apiCall({}, { action: 'feed', u: session.user, tk: session.token });
       cachedFeedItems = (data.ok && data.items) ? data.items : [];
+      activeTimeFilter = 'TODAY';
       activeSubjFilter = 'ALL';
       renderCategorizedFeed();
     } catch (e) { el.innerHTML = 'Could not load notices.'; }
@@ -789,38 +790,74 @@
   }
 
   let cachedFeedItems = [];
+  let activeTimeFilter = 'TODAY'; // 'TODAY' | 'ACTIVE' | 'OVERDUE'
   let activeSubjFilter = 'ALL';
   let feedIsTeacher = false;
 
+  function setTimeFilter(tf) { activeTimeFilter = tf; activeSubjFilter = 'ALL'; renderCategorizedFeed(); }
   function setSubjectFilter(subj) { activeSubjFilter = subj; renderCategorizedFeed(); }
 
   function renderCategorizedFeed() {
     const list = document.getElementById('noticesList');
     if (!cachedFeedItems.length) { list.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">No notices or homework posted yet.</p>'; return; }
-    const notices = cachedFeedItems.filter(n => n.kind !== 'HOMEWORK');
-    const homeworks = cachedFeedItems.filter(n => n.kind === 'HOMEWORK');
+
+    const today = todayIsoLocal();
+    const isToday = n => String(n.created || '').slice(0, 10) === today;
+    const isOverdue = n => n.kind === 'HOMEWORK' && Boolean(n.due) && String(n.due).slice(0, 10) < today;
+    const isActive = n => !isOverdue(n);
+
+    const todayCount = cachedFeedItems.filter(isToday).length;
+    const activeCount = cachedFeedItems.filter(isActive).length;
+    const overdueCount = cachedFeedItems.filter(isOverdue).length;
+
+    const timeBtnStyle = (active, accent) => active
+      ? `flex:1;padding:9px 8px;border-radius:10px;border:none;font-size:0.8rem;font-weight:700;cursor:pointer;background:${accent};color:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.12);`
+      : `flex:1;padding:9px 8px;border-radius:10px;border:1px solid var(--border);font-size:0.8rem;font-weight:600;cursor:pointer;background:#f8fafc;color:#334155;`;
+
+    let timeBarHtml = `<div style="display:flex;gap:6px;margin-bottom:10px;">
+      <button type="button" onclick="setTimeFilter('TODAY')" style="${timeBtnStyle(activeTimeFilter === 'TODAY', 'var(--primary)')}">📅 Today (${todayCount})</button>
+      <button type="button" onclick="setTimeFilter('ACTIVE')" style="${timeBtnStyle(activeTimeFilter === 'ACTIVE', '#0f766e')}">⏳ Not Overdue (${activeCount})</button>
+      <button type="button" onclick="setTimeFilter('OVERDUE')" style="${timeBtnStyle(activeTimeFilter === 'OVERDUE', '#dc2626')}">⚠ Overdue (${overdueCount})</button>
+    </div>`;
+
+    const scopedItems = cachedFeedItems.filter(n =>
+      activeTimeFilter === 'TODAY' ? isToday(n) : (activeTimeFilter === 'OVERDUE' ? isOverdue(n) : isActive(n))
+    );
+
+    const notices = scopedItems.filter(n => n.kind !== 'HOMEWORK');
+    const homeworks = scopedItems.filter(n => n.kind === 'HOMEWORK');
     const subjMap = {};
     homeworks.forEach(hw => { const s = (hw.subject || 'General').trim() || 'General'; if (!subjMap[s]) subjMap[s] = []; subjMap[s].push(hw); });
     const subjects = Object.keys(subjMap).sort();
 
-    let pillsHtml = '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">';
-    const pillStyle = active => active ? 'padding:6px 12px;border-radius:999px;border:none;font-size:0.78rem;font-weight:700;cursor:pointer;background:var(--primary);color:#fff;' : 'padding:6px 12px;border-radius:999px;border:1px solid var(--border);font-size:0.78rem;font-weight:600;cursor:pointer;background:#f8fafc;color:#334155;';
-    pillsHtml += `<button type="button" onclick="setSubjectFilter('ALL')" style="${pillStyle(activeSubjFilter === 'ALL')}">All (${cachedFeedItems.length})</button>`;
-    if (notices.length) pillsHtml += `<button type="button" onclick="setSubjectFilter('__NOTICES__')" style="${pillStyle(activeSubjFilter === '__NOTICES__')}">📢 Notices (${notices.length})</button>`;
-    subjects.forEach(s => { pillsHtml += `<button type="button" onclick="setSubjectFilter('${escapeHtml(s).replace(/'/g, "\\'")}')" style="${pillStyle(activeSubjFilter === s)}">${escapeHtml(s)} (${subjMap[s].length})</button>`; });
-    pillsHtml += '</div>';
+    let pillsHtml = '';
+    if (scopedItems.length) {
+      pillsHtml = '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">';
+      const pillStyle = active => active ? 'padding:5px 11px;border-radius:999px;border:none;font-size:0.75rem;font-weight:700;cursor:pointer;background:var(--primary);color:#fff;' : 'padding:5px 11px;border-radius:999px;border:1px solid var(--border);font-size:0.75rem;font-weight:600;cursor:pointer;background:#f8fafc;color:#334155;';
+      pillsHtml += `<button type="button" onclick="setSubjectFilter('ALL')" style="${pillStyle(activeSubjFilter === 'ALL')}">All (${scopedItems.length})</button>`;
+      if (notices.length) pillsHtml += `<button type="button" onclick="setSubjectFilter('__NOTICES__')" style="${pillStyle(activeSubjFilter === '__NOTICES__')}">📢 Notices (${notices.length})</button>`;
+      subjects.forEach(s => { pillsHtml += `<button type="button" onclick="setSubjectFilter('${escapeHtml(s).replace(/'/g, "\\\\'")}')" style="${pillStyle(activeSubjFilter === s)}">${escapeHtml(s)} (${subjMap[s].length})</button>`; });
+      pillsHtml += '</div>';
+    }
 
     const cardHtml = n => `<div class="notice-item"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><div class="notice-title">${escapeHtml(n.title)} <span class="badge ${n.kind === 'HOMEWORK' ? 'badge-leave' : 'badge-present'}">${escapeHtml(n.kind)}</span></div>${feedIsTeacher ? `<button onclick="deleteTeacherNotice('${escapeHtml(n.id)}')" style="background:none;border:none;color:#dc2626;font-size:0.75rem;cursor:pointer;">Delete</button>` : ''}</div><div class="notice-meta">${n.subject ? '<b>' + escapeHtml(n.subject) + '</b> • ' : ''}Posted by ${escapeHtml(n.author || 'Teacher')} (${String(n.created || '').slice(0, 10)}) ${n.due ? '• Due: ' + n.due : ''}</div><div class="notice-body">${escapeHtml(n.body)}</div></div>`;
 
     let bodyHtml = '';
-    if ((activeSubjFilter === 'ALL' || activeSubjFilter === '__NOTICES__') && notices.length) {
-      bodyHtml += `<div style="margin-bottom:14px;"><div style="font-size:0.82rem;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:var(--primary);border-bottom:2px solid var(--border);padding-bottom:4px;margin-bottom:8px;">📢 Class Notices (${notices.length})</div>${notices.map(cardHtml).join('')}</div>`;
+    if (!scopedItems.length) {
+      const emptyMsg = activeTimeFilter === 'TODAY'
+        ? `No homework or notices uploaded today (${today}). Tap <b>Not Overdue</b> or <b>Overdue</b> above to view earlier items.`
+        : (activeTimeFilter === 'OVERDUE' ? 'No overdue homework.' : 'No upcoming homework.');
+      bodyHtml = `<div style="text-align:center;color:var(--text-muted);font-size:0.86rem;padding:22px 12px;border:1px dashed var(--border);border-radius:10px;">${emptyMsg}</div>`;
+    } else {
+      if ((activeSubjFilter === 'ALL' || activeSubjFilter === '__NOTICES__') && notices.length) {
+        bodyHtml += `<div style="margin-bottom:14px;"><div style="font-size:0.82rem;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:var(--primary);border-bottom:2px solid var(--border);padding-bottom:4px;margin-bottom:8px;">📢 Class Notices (${notices.length})</div>${notices.map(cardHtml).join('')}</div>`;
+      }
+      const shownSubjects = activeSubjFilter === 'ALL' ? subjects : (activeSubjFilter === '__NOTICES__' ? [] : subjects.filter(s => s === activeSubjFilter));
+      shownSubjects.forEach(s => {
+        bodyHtml += `<div style="margin-bottom:14px;"><div style="font-size:0.82rem;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:#0f766e;border-bottom:2px solid #ccfbf1;padding-bottom:4px;margin-bottom:8px;">📚 ${escapeHtml(s)} Homework (${subjMap[s].length})</div>${subjMap[s].map(cardHtml).join('')}</div>`;
+      });
     }
-    const shownSubjects = activeSubjFilter === 'ALL' ? subjects : (activeSubjFilter === '__NOTICES__' ? [] : subjects.filter(s => s === activeSubjFilter));
-    shownSubjects.forEach(s => {
-      bodyHtml += `<div style="margin-bottom:14px;"><div style="font-size:0.82rem;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:#0f766e;border-bottom:2px solid #ccfbf1;padding-bottom:4px;margin-bottom:8px;">📚 ${escapeHtml(s)} Homework (${subjMap[s].length})</div>${subjMap[s].map(cardHtml).join('')}</div>`;
-    });
-    list.innerHTML = pillsHtml + bodyHtml;
+    list.innerHTML = timeBarHtml + pillsHtml + bodyHtml;
   }
 
   async function loadNotices() {
@@ -830,6 +867,7 @@
     try {
       const res = await apiCall({}, { action: 'feed', s: session.s, r: session.r, tk: session.tk });
       cachedFeedItems = (res.ok && res.items) ? res.items : [];
+      activeTimeFilter = 'TODAY';
       activeSubjFilter = 'ALL';
       renderCategorizedFeed();
     } catch (e) { list.innerHTML = '<p style="color: var(--danger);">Failed to load notices.</p>'; }
